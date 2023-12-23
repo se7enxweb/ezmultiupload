@@ -1,5 +1,5 @@
 {
-    "name": "ezsystems/ezmultiupload-ls",
+    "name": "se7enxweb/ezmultiupload-ls",
     "description": "Multi-upload extension for eZ Publish legacy",
     "type": "ezpublish-legacy-extension",
     "license": "GPL-2.0",
