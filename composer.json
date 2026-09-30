@@ -1,6 +1,6 @@
 {
     "name": "se7enxweb/ezmultiupload",
-    "description": "Multi-upload extension for eZ Publish legacy",
+    "description": "Multi-upload extension for Exponential Legacy",
     "type": "ezpublish-legacy-extension",
     "license": "GPL-2.0-or-later",
     "authors": [
