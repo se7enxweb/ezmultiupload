@@ -92,3 +92,11 @@
     transition: .1s linear box-shadow;
     border-radius: 4px;
 }
+
+/* With Exponential UI: the chooser, the drop zone and the file list (exp::upload) */
+.content-view-ezmultiupload #uploadButtonOverlay.exp-upload {
+    max-width: 40rem;
+}
+.content-view-ezmultiupload #uploadButtonOverlay.exp-upload .exp-upload-list {
+    margin-bottom: 0;
+}

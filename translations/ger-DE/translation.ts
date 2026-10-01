@@ -66,5 +66,37 @@
         <source>Javascript has been disabled, this is needed for multiupload!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>oder hier ablegen</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Hochladen von %name abbrechen</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>Wartet</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Wird hochgeladen</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Fertig</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Abgebrochen</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Ungültige JSON-Daten</translation>
+    </message>
 </context>
 </TS>
