@@ -1,8 +1,5 @@
 {ezcss_require( 'ezmultiupload.css' )}
-{* With Exponential UI (the expui extension): several files, their progress, cancel and the result list on jQuery 4
-   ($.fn.expUpload), plus a drop zone; the same requests as before (one POST per file, Filedata and the same fields).
-   Without it: the YUI 3 uploader below. *}
-{if ezmodule( 'expui' )}
+{* The upload runs on Exponential UI (exp::io, exp::dialog, exp::upload, extension expui). *}
 {ezscript_require( array( 'exp::core', 'exp::io', 'exp::dialog', 'exp::upload' ) )}
 {ezcss_require( array( 'exp/core.css', 'exp/dialog.css', 'exp/upload.css' ) )}
 <script type="text/javascript">
@@ -39,7 +36,7 @@
             $message = $('#multiuploadProgressMessage'), $cancel = $('#cancelUploadButton'), $thumbnails = $('#thumbnails');
         var round = [], canceled = false, speed = Exp.reducedMotion ? 0 : 1;
 
-        // the server sends the thumbnail's HTML as HTML entities: decoded as the YUI version did, with an inert parser
+        // the server sends the thumbnail's HTML as HTML entities: decoded with an inert parser
         function unescapeHTML(s) {
             var text = new window.DOMParser().parseFromString(s.replace(/<\/?[^>]+>/gi, ''), 'text/html').body.textContent;
             return text || s;
@@ -52,7 +49,7 @@
             name: 'Filedata',
             multiple: true,
             drop: true,
-            parallel: 2,                     // the YUI uploader's simLimit
+            parallel: 2,                     // two files at a time
             data: cfg.uploadVars,
             token: false,                    // in uploadVars already
             responseType: 'text',
@@ -60,7 +57,7 @@
         });
         var up = $root.data('expUpload');
 
-        // files chosen (or dropped): a new round, as YUI's fileselect started one
+        // files chosen (or dropped): a new round
         $root.on('exp:upload:add', function (e, d) {
             if (!round.length || round.every(function (f) { return f.status !== 'queued' && f.status !== 'uploading'; })) {
                 round = [];
@@ -90,7 +87,7 @@
                 return;
             }
             var thumbnail = $('<div class="thumbnail-block"></div>').attr('id', 'thumbnail_' + response.id).css('opacity', 0);
-            thumbnail[0].innerHTML = unescapeHTML(String(response.data));   // as YUI's Node.create: no script is run
+            thumbnail[0].innerHTML = unescapeHTML(String(response.data));   // no script is run
             $thumbnails.append(thumbnail);
             thumbnail.animate({ opacity: 1 }, 200 * speed);
         });
@@ -120,38 +117,6 @@
 {/literal}
 {rdelim})();
 </script>
-{else}
-{ezscript_require( array( 'ezjsc::yui3', 'ezjsc::yui3io') )}
-<script type="text/javascript">
-(function(config){ldelim}
-    config['modules']['ezmultiupload'] = {ldelim}
-        type: 'js',
-        fullpath: '{"javascript/ezmultiupload.js"|ezdesign( 'no' )}',
-        requires: ["uploader", "node", "event-base", "json-parse", "anim"],
-        after: ["uploader"],
-        skinnable: false
-    {rdelim};
-
-    YUI(config).use('ezmultiupload', function (Y) {ldelim}
-        Y.ez.MultiUpload.cfg = {ldelim}
-            uploadURL: "{concat( 'ezmultiupload/upload/', $parent_node.node_id )|ezurl( 'no' )}",
-            uploadVars: {ldelim}
-                '{$session_name}': '{$session_id}',
-                //'XDEBUG_SESSION_START': 'XDEBUG_ECLIPSE',
-                'UploadButton': 'Upload',
-                'ezxform_token': '@$ezxFormToken@'
-            {rdelim},
-            allFilesRecived:  "{'All files received.'|i18n('extension/ezmultiupload')|wash(javascript)}",
-            uploadCanceled:   "{'Upload canceled.'|i18n('extension/ezmultiupload')|wash(javascript)}",
-            thumbnailCreated: "{'Thumbnail created.'|i18n('extension/ezmultiupload')|wash(javascript)}",
-            selectButtonLabel: "{'Select files'|i18n('extension/ezmultiupload')|wash(javascript)}",
-            multipleFiles: true
-        {rdelim};
-        Y.ez.MultiUpload.init();
-    {rdelim});
-{rdelim})(YUI3_config);
-</script>
-{/if}
 
 <div class="border-box">
 <div class="border-tl"><div class="border-tr"><div class="border-tc"></div></div></div>
