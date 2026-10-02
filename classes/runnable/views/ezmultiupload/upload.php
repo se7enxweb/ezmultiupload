@@ -3,6 +3,18 @@
  * The code of extension/ezmultiupload/modules/ezmultiupload/upload.php, moved into a class (#207 stage 1). The file extension/ezmultiupload/modules/ezmultiupload/upload.php is one call to it.
  * Guide: doc/bc/6.0/cli_cronjob_view_abstractions.md
  */
+/*
+ * The original header of extension/ezmultiupload/modules/ezmultiupload/upload.php:
+ *
+ *
+ * File containing the eZ Publish upload view implementation.
+ *
+ * @copyright Copyright (C) eZ Systems AS. All rights reserved.
+ * @license For full copyright and license information view LICENSE file distributed with this source code.
+ * @version 1.0.0
+ * @package ezmultiupload
+ *
+ */
 
 namespace Exponential\View\Extension\Ezmultiupload\Ezmultiupload
 {
