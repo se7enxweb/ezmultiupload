@@ -11,7 +11,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "se7enxweb/ezpublish-legacy-installer": "*"
+        "se7enxweb/ezpublish-legacy-installer": "*",
+        "se7enxweb/expui": "^1.0.0.1"
     },
     "extra": {
         "ezpublish-legacy-extension-name": "ezmultiupload"
