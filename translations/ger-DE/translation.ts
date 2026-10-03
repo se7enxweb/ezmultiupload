@@ -64,7 +64,7 @@
     </message>
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript ist deaktiviert, wird aber für den Mehrfach-Upload benötigt!</translation>
     </message>
     <message>
         <source>or drop them here</source>
