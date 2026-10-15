@@ -62,10 +62,9 @@ An encrypted archive is refused with a message. Entries with an absolute path, a
 and devices are skipped as unsafe. Names that are not UTF-8 are read as CP437 (the ZIP default) or Latin-1. Every
 entry passes the checks of a single upload: the type list, the size limit, an image by its content (L05), the
 create permission where it goes; an image whose class requires an alternative text is skipped (a ZIP file has no
-field for it). The archive is unpacked into a private directory of the request,
-`var/<site>/ezmultiupload-zip-<user id>/<random>` (mode 0700, one base directory per system user, since Velocity and
-PHP-FPM may run as different users), under names made by the server, and removed when the request ends, also after
-a failure. Nothing in an archive is run.
+field for it). The page reads and unpacks archives through the ZIP import backend described below
+(`expMultiuploadZipImporter`): its private directory is removed when the request ends, also after a failure, and
+nothing in an archive is run.
 
 ## ZIP import
 
@@ -162,7 +161,6 @@ root; the archives are made by the test, no database).
 ## Code
 
 - `classes/expmultiuploadservice.php` — the checks and actions (`expMultiuploadService`).
-- `classes/expmultiuploadzip.php` — reading ZIP files (`expMultiuploadZip`).
 - `classes/expmultiuploadzipimporter.php` — the ZIP import backend (`expMultiuploadZipImporter`), tested by
   `tests/expMultiuploadZipImporterTest.php` in this extension.
 - `classes/runnable/views/ezmultiupload/upload.php`, `service.php` — the views.
