@@ -1,0 +1,39 @@
+/*
+ * ezmultiupload: the upload page of the administration designs (admin4, admin4l, adminui;
+ * design/admin4/templates/ezmultiupload/upload_body.tpl). Loaded through design.ini BackendCSSFileList[].
+ * The page is the frame of the content action pages, built from the shared controls and .a4-* components; this
+ * file holds only what they cannot do: the drop zone and the size of a preview. Tokens only (each has its dark
+ * value in components.css); nothing for dark mode of its own.
+ */
+
+/* the drop zone: a dashed area that takes files dragged onto it */
+.exp-mu-drop {
+  padding: var(--a4-space-5) var(--a4-space-4);
+  border: 2px dashed var(--a4-line-strong);
+  border-radius: var(--a4-radius-s);
+  background-color: var(--a4-soft);
+  text-align: center;
+}
+.exp-mu-drop > p { margin: 0 0 var(--a4-space-2); }
+.exp-mu-drop > p:last-child { margin-bottom: 0; }
+.exp-mu-drop.is-over {
+  border-style: solid;
+  border-color: var(--a4-accent);
+  background-color: var(--a4-accent-soft);
+}
+
+/* a preview: the size of the node view's thumbnails */
+.exp-mu-thumb {
+  display: block;
+  width: var(--a4-space-7);
+  height: var(--a4-space-7);
+  object-fit: cover;
+  border-radius: var(--a4-radius-s);
+}
+
+@media (forced-colors: active) {
+  .exp-mu-drop.is-over { outline: 2px solid Highlight; }
+}
+
+/* the page's controls hidden by the script ([hidden] loses against the display of a component class) */
+.exp-mu [hidden] { display: none !important; }

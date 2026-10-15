@@ -16,4 +16,8 @@ $ViewList['upload'] = array( 'script' => 'upload.php',
                              'single_post_actions' => array( 'UploadButton' => 'Upload' ),
                              'params' => array( 'ParentNodeID' ) );
 
+// the checks and actions of the upload page (POST only, JSON): extension/ezmultiupload/classes/runnable/views/ezmultiupload/service.php
+$ViewList['service'] = array( 'script' => 'service.php',
+                              'params' => array() );
+
 ?>
