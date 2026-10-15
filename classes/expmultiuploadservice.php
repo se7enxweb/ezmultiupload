@@ -699,10 +699,31 @@ class expMultiuploadService
         }
         return array( 'nodeId' => (int)$node->attribute( 'node_id' ),
                       'objectId' => (int)$object->attribute( 'id' ),
+                      'imageUrl' => static::imageUrl( $object ),
                       'name' => (string)$object->attribute( 'name' ),
                       'url' => static::url( 'content/view/full/' . (int)$node->attribute( 'node_id' ) ),
                       'editUrl' => static::url( 'content/edit/' . (int)$object->attribute( 'id' ) ),
                       'locations' => $locations );
+    }
+
+    /**
+     * The address of the stored image of $object (its first image attribute with an image, the original as the kernel
+     * stored it; an SVG is the sanitized file), for the preview of an uploaded item; '' without one.
+     *
+     * @param eZContentObject $object
+     * @return string
+     */
+    protected static function imageUrl( $object )
+    {
+        foreach ( $object->dataMap() as $attribute )
+        {
+            if ( $attribute->attribute( 'data_type_string' ) !== 'ezimage' || !$attribute->hasContent() )
+                continue;
+            $original = $attribute->content()->attribute( 'original' );
+            if ( is_array( $original ) && !empty( $original['url'] ) )
+                return eZSys::wwwDir() . '/' . ltrim( (string)$original['url'], '/' );
+        }
+        return '';
     }
 
     /**

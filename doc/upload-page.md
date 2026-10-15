@@ -27,6 +27,9 @@ The content tree's context menu and the sub-items menu open it with "Upload mult
   says why and is not sent. A file with the same name and size already in the location is marked; *If it exists*
   offers Ask, Skip, Rename (to the first free `name-2.ext`) or Upload anyway, and *Upload all* asks once for the
   rows still on Ask.
+- **SVG images** (with the kernel's SVG support, 6.0.15): an SVG becomes an Image through `MimeClassMap[image]`, the
+  kernel sanitizes it when it is stored, galleries take `*.svg` and `*.svgz`, and its preview is an `<img>` of the
+  stored file after the upload (never of the uploaded file, and never inline markup).
 - **Keep as drafts**: the new items are not published; they wait in My drafts (the kernel's upload with
   `publish = false`).
 - **After the upload**: the list of what was made with View and Edit. Selected items can be moved (*Move to...*),

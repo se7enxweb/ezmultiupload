@@ -395,8 +395,9 @@
             var dot = name.lastIndexOf('.');
             return dot > 0 ? name.slice(0, dot) : name;
         }
-        // a preview is an <img> of the browser's own copy of the file: an SVG drawn as an image runs no script
-        function isImage(file) { return /^image\/(png|jpe?g|gif|webp|bmp|avif|svg\+xml)$/i.test(file.type || ''); }
+        // a preview of the browser's own copy of a raster image; an SVG (image/svg+xml) gets its preview only after the
+        // upload, an <img> of the file the kernel stored and sanitized (itemInfo's imageUrl)
+        function isImage(file) { return /^image\/(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.type || ''); }
         function isZip(file) { return !!cfg.zipEnabled && /\.zip$/i.test(file.name || ''); }
         /** whether a ZIP row's contents are imported: the row's own choice, else the page's checkbox */
         function expands(row) { return !!row.zip && (row.zipOverride === null || row.zipOverride === undefined ? zipImport : row.zipOverride); }
@@ -1136,7 +1137,7 @@
         // ---- the result list --------------------------------------------------------------------------------------
 
         function addResult(item, preview) {
-            var r = { item: item, preview: preview || '', selected: false };
+            var r = { item: item, preview: item.imageUrl || preview || '', selected: false };
             results.push(r);
             drawResult(r);
             updateResults();
