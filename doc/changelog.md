@@ -1,5 +1,11 @@
 # ezmultiupload changelog
 
+## 6.1.1 (2026-10-15)
+
+- Updated: The create permission checks read a node's class id from its object (6.1.0 logged "Attribute
+  'contentclass_id' does not exist" on the upload page and checked the parent class as 0).
+- Updated: The options under the drop zone have the inner padding of a card body and space above them.
+
 ## 6.1.0 (2026-10-15)
 
 The upload page is new in admin4, admin4l and adminui; the classic `design/admin` keeps the 6.0 page, which works
