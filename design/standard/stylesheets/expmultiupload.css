@@ -9,6 +9,7 @@
 /* the drop zone: a dashed area that takes files dragged onto it */
 .exp-mu-drop {
   padding: var(--a4-space-5) var(--a4-space-4);
+  margin: 0 0 var(--a4-space-4);
   border: 2px dashed var(--a4-line-strong);
   border-radius: var(--a4-radius-s);
   background-color: var(--a4-soft);
@@ -21,6 +22,12 @@
   border-color: var(--a4-accent);
   background-color: var(--a4-accent-soft);
 }
+
+/* the options under the drop zone: the inner padding of a card body */
+.exp-mu-drop ~ .a4-content-attr {
+  padding: var(--a4-card-pad-y, var(--a4-space-3)) var(--a4-card-pad-x, var(--a4-space-4));
+}
+.exp-mu-drop ~ .a4-content-attr > * + * { margin-top: var(--a4-space-3); }
 
 /* a preview: the size of the node view's thumbnails */
 .exp-mu-thumb {
