@@ -147,6 +147,12 @@ root; the archives are made by the test, no database).
 - `MaxFileSize=64M` (new): the largest file; PHP's `upload_max_filesize` and `post_max_size` apply as well, the
   smallest is the limit. The page refuses a larger file before it is sent and the server again.
 
+## For other pages
+
+`expMultiuploadService::canUploadAt( $nodeIdOrNode )` says whether the current user can upload at a node (the module
+policy, read and create access, an upload location); `uploadTarget( $node )` gives the reason when not. Use it for a
+link or button to the upload page.
+
 ## Security
 
 - Every request that changes something is a POST with the session's form token (`ezxform_token`, checked by the

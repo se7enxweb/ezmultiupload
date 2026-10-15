@@ -296,6 +296,26 @@ class expMultiuploadService
     }
 
     /**
+     * Whether the current user can upload files at $nodeID: access to the ezmultiupload module and uploadTarget()
+     * (the location exists, is read and created in, and is a container or a configured upload class or node). The
+     * one check for a link or button to the upload page; the page itself and every upload check again.
+     *
+     * @param int|eZContentObjectTreeNode $node
+     * @return bool
+     */
+    public static function canUploadAt( $node )
+    {
+        if ( !$node instanceof eZContentObjectTreeNode )
+            $node = static::fetchNode( self::positiveId( is_int( $node ) ? $node : (string)$node ) );
+        if ( !$node )
+            return false;
+        $access = eZUser::currentUser()->hasAccessTo( 'ezmultiupload', 'upload' );
+        if ( !isset( $access['accessWord'] ) || $access['accessWord'] === 'no' )
+            return false;
+        return static::uploadTarget( $node ) === true;
+    }
+
+    /**
      * Whether the node's class is a container (its class has "Container" set).
      *
      * @param eZContentObjectTreeNode $node
