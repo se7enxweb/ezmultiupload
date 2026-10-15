@@ -1,5 +1,20 @@
 # ezmultiupload changelog
 
+## Unreleased
+
+- Fixed: A location the user cannot read is answered by the service like one that does not exist: no name, no path
+  and the same message (`check`, and the reason of `uploadTarget()`).
+- Fixed: Paths and the location picker's path leave out the locations above that the user cannot read; an
+  uploaded item lists only the locations the user can read.
+- Fixed: *Move*, *Add location* and *Remove* answer an item the user cannot read as one that does not exist.
+- Fixed: Without a form token in use, the service and the upload take a request only when the browser says it
+  comes from the same origin (`Sec-Fetch-Site`, or the `Origin` header where the browser sends no
+  `Sec-Fetch-Site`).
+- Fixed: The upload page answers a location the user cannot read as one that does not exist.
+- Fixed: The ZIP files inside an archive are unpacked within `MaxTotalSize` together, over all levels; past
+  `MaxEntries` the walk stops on every level; `extract()` removes the directory it made when it fails, and a
+  directory left behind by a request that died is removed by a later import after an hour.
+
 ## 6.1.2 (2026-10-15)
 
 - Added: A template fetch function, `fetch( 'ezmultiupload', 'can_upload', hash( 'node_id', $node_id ) )`, true

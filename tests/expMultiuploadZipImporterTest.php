@@ -17,6 +17,11 @@
  *          as a whole), files 0600 in a 0700 directory
  *  ZI-12 - cleanup() leaves nothing and can be called twice; inspect() leaves no temporary directory behind
  *  ZI-13 - a per-file size limit, a disabled importer, a file that is no ZIP file; utf8Name()/pathParts()/parseSize()
+ *  ZI-14 - the ZIP files inside an archive are unpacked within MaxTotalBytes together, over all levels; one past the
+ *          budget is skipped "total_size_exceeded" and never opened
+ *  ZI-15 - past MaxEntries the whole walk stops after one more MaxEntries rows, over all levels
+ *  ZI-16 - extract() removes the directory it made when the walk fails with an exception
+ *  ZI-17 - a directory an earlier call left behind is removed by the next call once it is older than an hour
  *
  * Run: php vendor/bin/phpunit extension/ezmultiupload/tests/expMultiuploadZipImporterTest.php
  *
@@ -364,6 +369,96 @@ class expMultiuploadZipImporterTest extends PHPUnit\Framework\TestCase
         $this->assertSame( 64 * 1024 * 1024, expMultiuploadZipImporter::parseSize( '64M' ) );
         $this->assertSame( 0, expMultiuploadZipImporter::parseSize( 'lots' ) );
         $this->assertSame( 500 * 1024 * 1024, $this->importer->options( array( 'maxTotalBytes' => 0 ) )['maxTotalBytes'] );
+    }
+
+    /** Random bytes that do not compress: a nested ZIP file of this has about its size */
+    private function noise( $bytes )
+    {
+        return random_bytes( $bytes );
+    }
+
+    public function testNestedArchivesShareTheTotalBudget()
+    {
+        // each inner ZIP file holds a file of a type that is not taken, so only the nested bytes count
+        $files = array();
+        foreach ( array( 'a', 'b', 'c' ) as $n )
+            $files["$n.zip"] = array( "$n.bin" => $this->noise( 15000 ), "$n.txt" => "Some notes in $n.\n" );
+        $zip = $this->zip( 'nested-budget.zip', $files, function ( ZipArchive $z ) {
+            foreach ( array( 'a', 'b', 'c' ) as $n )
+                $z->setCompressionName( "$n.zip", ZipArchive::CM_STORE );
+        } );
+        $result = $this->importer->inspect( $zip, array( 'maxTotalBytes' => 40000 ) );
+        $rows = $this->rows( $result );
+        $this->assertSame( 'ok', $rows['a.zip']['status'] );
+        $this->assertSame( 'ok', $rows['b.zip']['status'] );
+        $this->assertSame( 'ok', $rows['a.zip/a.txt']['status'] );
+        $this->assertSame( 'total_size_exceeded', $rows['c.zip']['reason'] );
+        $this->assertArrayNotHasKey( 'c.zip/c.txt', $rows, 'a nested ZIP file past the budget is not opened' );
+        $this->assertContains( 'total_size_exceeded', $result['refused'] );
+
+        $extracted = $this->importer->extract( $zip, array( 'a.zip', 'b.zip', 'c.zip' ), $this->dir . '/out', array( 'maxTotalBytes' => 40000 ) );
+        $this->assertSame( array( 'a.zip/a.txt', 'b.zip/b.txt' ), array_column( $extracted['files'], 'relativePath' ) );
+        $this->assertSame( 'total_size_exceeded', $extracted['skipped']['c.zip'] );
+    }
+
+    public function testTheWalkStopsPastTheEntryLimitOnEveryLevel()
+    {
+        $inner = array();
+        for ( $i = 1; $i <= 20; $i++ )
+            $inner["in$i.txt"] = "inner $i";
+        $files = array( 'l2.zip' => $inner );
+        for ( $i = 1; $i <= 20; $i++ )
+            $files["out$i.txt"] = "outer $i";
+        $result = $this->importer->inspect( $this->zip( 'many-nested.zip', $files ), array( 'maxEntries' => 5 ) );
+        $this->assertTrue( $result['ok'] );
+        $this->assertContains( 'too_many_entries', $result['refused'] );
+        $this->assertLessThanOrEqual( 10, count( $result['entries'] ) );
+        $this->assertSame( 5, count( array_filter( array_column( $result['entries'], 'status' ), function ( $s ) { return $s === 'ok'; } ) ) );
+    }
+
+    public function testExtractRemovesItsDirectoryWhenTheWalkFails()
+    {
+        $zip = $this->zip( 'fails.zip', array( 'a.txt' => 'a' ) );
+        $importer = new class( $this->options() ) extends expMultiuploadZipImporter {
+            protected function walk( string $zipPath, string $prefix, int $depth, array &$ctx ): bool
+            {
+                throw new RuntimeException( 'walk failed' );
+            }
+        };
+        $base = $this->dir . '/var/expmultiupload-zip-import-' . ( function_exists( 'posix_geteuid' ) ? posix_geteuid() : getmyuid() );
+        try
+        {
+            $importer->extract( $zip, array( 'a.txt' ) );
+            $this->fail( 'the exception reaches the caller' );
+        }
+        catch ( RuntimeException $e )
+        {
+            $this->assertSame( 'walk failed', $e->getMessage() );
+        }
+        $this->assertSame( array( '.', '..' ), scandir( $base ) );
+    }
+
+    public function testStaleDirectoriesOfEarlierCallsAreRemoved()
+    {
+        $base = $this->dir . '/var/expmultiupload-zip-import-' . ( function_exists( 'posix_geteuid' ) ? posix_geteuid() : getmyuid() );
+        mkdir( $base, 0700, true );
+        $old = $base . '/' . str_repeat( 'a', 24 );
+        $young = $base . '/' . str_repeat( 'b', 24 );
+        $other = $base . '/keep-me';
+        foreach ( array( $old, $young, $other ) as $dir )
+        {
+            mkdir( $dir, 0700 );
+            file_put_contents( $dir . '/left.txt', 'left' );
+        }
+        touch( $old, time() - 2 * 3600 );
+        touch( $other, time() - 2 * 3600 );
+
+        $this->importer->inspect( $this->zip( 'sweep.zip', array( 'a.txt' => 'Some notes.' ) ) );
+        $this->assertDirectoryDoesNotExist( $old );
+        $this->assertDirectoryExists( $young );
+        $this->assertDirectoryExists( $other, 'only the directories this importer makes are removed' );
+        $this->importer->cleanup( $young );
+        $this->importer->cleanup( $other );
     }
 
     /** The files below $dir, relative, sorted */

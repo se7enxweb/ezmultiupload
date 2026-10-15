@@ -107,8 +107,8 @@ Limits (options: `maxDepth`, `maxEntries`, `maxTotalBytes`, `maxRatio`, `ratioMi
 |---|---|---|
 | `ZipImport` | enabled | disabled: `inspect()` and `extract()` answer `disabled` |
 | `MaxDepth` | 3 | the uploaded archive is 1; a ZIP file that would open level 4 is skipped `too_deep` |
-| `MaxEntries` | 1000 | over all levels; the entries over it are skipped `too_many_entries` |
-| `MaxTotalSize` | 500M | uncompressed, over all levels, lowered to PHP's `upload_max_filesize`/`post_max_size`; files over it are skipped `total_size_exceeded` |
+| `MaxEntries` | 1000 | over all levels; the entries over it are skipped `too_many_entries`, and the walk stops after as many again |
+| `MaxTotalSize` | 500M | uncompressed, over all levels, lowered to PHP's `upload_max_filesize`/`post_max_size`; files over it are skipped `total_size_exceeded`. The ZIP files inside the archive are unpacked within a budget of the same size, over all levels; one past it is skipped `total_size_exceeded` and not opened |
 | `MaxCompressionRatio`, `CompressionRatioMinSize` | 100, 1M | an entry of at least 1 MB compressed more than 100 times is skipped `ratio_exceeded` |
 | `MaxFileSize` | empty: `[MultiUploadSettings] MaxFileSize` | per file, with PHP's upload limits; skipped `too_big` |
 | `AllowedMIMETypes[]` | image.ini's image types (with SVG) and PDF, text, CSV, RTF, Office, OpenDocument, audio, video | by content; `group/*` for a group |
@@ -158,6 +158,15 @@ link or button to the upload page.
 - Every request that changes something is a POST with the session's form token (`ezxform_token`, checked by the
   form token extension and again by `expMultiuploadService::requestAllowed()`, constant-time), never one sent from
   another site (`Sec-Fetch-Site`). The token is the session's, so it is the same on every server and worker.
+  Where no form token is in use (the form token extension is not active, or the user is anonymous), only a request
+  whose browser sends `Sec-Fetch-Site: same-origin` (or `none`) is taken; a browser that sends no `Sec-Fetch-Site`
+  (plain HTTP, older browsers) must send an `Origin` of this host. A client that sends neither is refused.
+- A location or an item the user cannot read is answered as one that does not exist: no name, no path, the same
+  message. Paths and the picker's path leave out the locations above that the user cannot read, and an uploaded
+  item lists only the locations the user can read. `ezmultiupload/upload/<node>` answers a location the user cannot
+  read with "not found", as one that does not exist.
+- A request that ends without its own cleanup (time or memory limit) leaves its ZIP directory behind; the next ZIP
+  import removes such directories once they are older than an hour.
 - Node ids are positive integers (`positiveId()`, `idList()`, at most 100 per request); anything else is refused.
 - The checks and actions are the view `ezmultiupload/service` (POST only, JSON): `check`, `browse`, `move`,
   `addlocation`, `remove`. Uploads stay `ezmultiupload/upload/<node>`; the location, the class's create permission,
@@ -168,7 +177,8 @@ link or button to the upload page.
 
 - `classes/expmultiuploadservice.php` — the checks and actions (`expMultiuploadService`).
 - `classes/expmultiuploadzipimporter.php` — the ZIP import backend (`expMultiuploadZipImporter`), tested by
-  `tests/expMultiuploadZipImporterTest.php` in this extension.
+  `tests/expMultiuploadZipImporterTest.php` in this extension; `tests/expMultiuploadServiceAccessTest.php` tests
+  the answers of the service for locations and items the user cannot read (both run without the kernel).
 - `classes/runnable/views/ezmultiupload/upload.php`, `service.php` — the views.
 - `design/admin4/templates/ezmultiupload/upload.tpl`, `upload_body.tpl` — the page, in the frame of the content
   action pages (box header, box content, control bar with the main action first) with the shared controls.

@@ -6,7 +6,9 @@
  * Safety: every entry is checked before anything is written. An unsafe path (absolute, a drive letter, "..", a NUL),
  * a symbolic link, a device, an encrypted entry, a type that is not allowed (by content, and a list of extensions
  * that are never taken), a file larger than the per-file limit, an entry compressed more than MaxRatio times, an
- * entry over MaxEntries and an entry that would pass MaxTotalBytes are skipped with a reason. The system's own files
+ * entry over MaxEntries and an entry that would pass MaxTotalBytes are skipped with a reason. ZIP files inside the
+ * archive are unpacked to a scratch file to be read; their bytes count against a budget of their own, also
+ * MaxTotalBytes over all levels, so nesting cannot unpack more than twice MaxTotalBytes in one call. The system's own files
  * (__MACOSX/, .DS_Store, Thumbs.db, desktop.ini) and hidden files are skipped too. Names are UTF-8 (a CP437 or
  * ISO-8859-1 name is converted). Files are copied from the entry's stream in chunks and stop at the size the
  * archive declares, so a lying header cannot write more than the limits allow. Every target is checked with
@@ -44,6 +46,9 @@ class expMultiuploadZipImporter
 
     /** Bytes read from an entry to find its type */
     const HEAD_BYTES = 65536;
+
+    /** A directory of an earlier call older than this many seconds is removed by the next call (a request that died) */
+    const STALE_SECONDS = 3600;
 
     /** Bytes per read when an entry is copied */
     const CHUNK_BYTES = 65536;
@@ -143,7 +148,8 @@ class expMultiuploadZipImporter
         $result = $this->precheck( $zipPath, $limits );
         if ( $result !== null )
             return $result + array( 'tmpDir' => '', 'files' => array(), 'skipped' => array() );
-        if ( $tmpDir === '' )
+        $own = $tmpDir === '';
+        if ( $own )
             $tmpDir = (string)$this->makeTempDir( $limits['varDir'] );
         else if ( !is_dir( $tmpDir ) && !@mkdir( $tmpDir, 0700, true ) && !is_dir( $tmpDir ) )
             $tmpDir = '';
@@ -167,6 +173,13 @@ class expMultiuploadZipImporter
         try
         {
             $readable = $this->walk( $zipPath, '', 1, $ctx );
+        }
+        catch ( Throwable $e )
+        {
+            // the caller never learns the directory: it is removed here when this call made it
+            if ( $own )
+                $this->cleanup( $real );
+            throw $e;
         }
         finally
         {
@@ -426,6 +439,7 @@ class expMultiuploadZipImporter
     {
         return array( 'limits' => $limits, 'mode' => $mode, 'selected' => $selected, 'outDir' => $outDir,
                       'scratch' => $scratch, 'serial' => 0, 'count' => 0, 'total' => 0, 'written' => 0,
+                      'nestedBytes' => 0, 'over' => 0, 'stop' => false,
                       'rows' => array(), 'files' => array(), 'failed' => array(), 'seen' => array(), 'refused' => array(),
                       'finfo' => function_exists( 'finfo_open' ) ? finfo_open( FILEINFO_MIME_TYPE ) : false );
     }
@@ -447,8 +461,7 @@ class expMultiuploadZipImporter
         $limits = $ctx['limits'];
         try
         {
-            $listed = 0;
-            for ( $i = 0; $i < $zip->numFiles; $i++ )
+            for ( $i = 0; $i < $zip->numFiles && !$ctx['stop']; $i++ )
             {
                 $stat = $zip->statIndex( $i, ZipArchive::FL_ENC_RAW );
                 if ( !is_array( $stat ) )
@@ -465,9 +478,13 @@ class expMultiuploadZipImporter
                 if ( $ctx['count'] > $limits['maxEntries'] )
                 {
                     $ctx['refused'][self::REASON_ENTRIES] = true;
-                    // the rows over the limit are listed up to the limit again, then the walk stops
-                    if ( ++$listed > $limits['maxEntries'] )
+                    // the rows over the limit are listed up to the limit again, over all levels, then the whole walk
+                    // stops (also the archives it is inside of)
+                    if ( ++$ctx['over'] > $limits['maxEntries'] )
+                    {
+                        $ctx['stop'] = true;
                         break;
+                    }
                     $this->addRow( $ctx, $row, self::REASON_ENTRIES );
                     continue;
                 }
@@ -539,13 +556,22 @@ class expMultiuploadZipImporter
                         $this->addRow( $ctx, $row, self::REASON_SIZE );
                         continue;
                     }
+                    // the ZIP files inside, over all levels, are unpacked within MaxTotalBytes together
+                    if ( $ctx['nestedBytes'] + $size > $limits['maxTotalBytes'] )
+                    {
+                        $ctx['refused'][self::REASON_TOTAL] = true;
+                        $this->addRow( $ctx, $row, self::REASON_TOTAL );
+                        continue;
+                    }
                     if ( $ctx['mode'] === 'extract' && !$this->isNeeded( $row['path'], $ctx['selected'] ) )
                     {
                         $this->addRow( $ctx, $row, '' );
                         continue;
                     }
                     $inner = $ctx['scratch'] . '/' . ( ++$ctx['serial'] ) . '.zip';
-                    if ( !$this->copyEntry( $zip, $i, $inner, $size ) )
+                    // counted before the copy: a copy that fails half way has unpacked its bytes all the same
+                    $ctx['nestedBytes'] += $size;
+                    if ( $this->copyEntry( $zip, $i, $inner, $size, $size ) === false )
                     {
                         $this->addRow( $ctx, $row, self::REASON_UNREADABLE );
                         continue;
@@ -861,6 +887,7 @@ class expMultiuploadZipImporter
             return false;
         if ( is_link( $base ) )
             return false;
+        $this->removeStale( $base );
         for ( $i = 0; $i < 5; $i++ )
         {
             $dir = $base . '/' . bin2hex( random_bytes( 12 ) );
@@ -871,6 +898,26 @@ class expMultiuploadZipImporter
             }
         }
         return false;
+    }
+
+    /**
+     * Removes the directories below $base older than STALE_SECONDS: those of a request that ended without its own
+     * cleanup (a time limit or memory limit is not an exception, so no finally runs).
+     *
+     * @param string $base
+     */
+    protected function removeStale( string $base ): void
+    {
+        $before = time() - self::STALE_SECONDS;
+        foreach ( (array)@scandir( $base ) as $name )
+        {
+            $dir = $base . '/' . $name;
+            if ( !is_string( $name ) || !preg_match( '/^[0-9a-f]{24}\z/', $name ) || is_link( $dir ) || !is_dir( $dir ) )
+                continue;
+            $time = @filemtime( $dir );
+            if ( $time !== false && $time < $before )
+                $this->cleanup( $dir );
+        }
     }
 
     /** PHP's upload limit: the smaller of upload_max_filesize and post_max_size that is set, 0 for none */
