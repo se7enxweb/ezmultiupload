@@ -485,7 +485,19 @@ class expMultiuploadService
      */
     protected static function canCreateClass( $node, $class )
     {
-        return $node->checkAccess( 'create', (int)$class->attribute( 'id' ), (int)$node->attribute( 'contentclass_id' ) ) == 1;
+        return $node->checkAccess( 'create', (int)$class->attribute( 'id' ), static::nodeClassID( $node ) ) == 1;
+    }
+
+    /**
+     * The class id of the object at $node (a node has no class id of its own).
+     *
+     * @param eZContentObjectTreeNode $node
+     * @return int
+     */
+    protected static function nodeClassID( $node )
+    {
+        $object = $node->object();
+        return $object ? (int)$object->attribute( 'contentclass_id' ) : 0;
     }
 
     /**
@@ -818,7 +830,7 @@ class expMultiuploadService
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'The item does not exist.' );
             else if ( !$object->checkAccess( 'edit' ) && !$user->hasManageLocations() )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'You may not change the locations of this item.' );
-            else if ( !( $target->checkAccess( 'create', (int)$object->attribute( 'contentclass_id' ), (int)$target->attribute( 'contentclass_id' ) ) == 1
+            else if ( !( $target->checkAccess( 'create', (int)$object->attribute( 'contentclass_id' ), static::nodeClassID( $target ) ) == 1
                          || ( $target->canAddLocation() && $node->canRead() ) ) )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'You may not create this type of content in that location.' );
             else
