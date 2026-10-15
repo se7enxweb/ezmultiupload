@@ -167,6 +167,12 @@ link or button to the upload page.
   read with "not found", as one that does not exist.
 - A request that ends without its own cleanup (time or memory limit) leaves its ZIP directory behind; the next ZIP
   import removes such directories once they are older than an hour.
+- *Remove* asks what the kernel's remove view asks: every location of the item, with everything below it, must be
+  removable (`subtreeRemovalInformation()`, `can_remove_all`). An item with anything below it is refused ("This item
+  has items below it"): the upload page manages files, and a subtree is removed in the content structure, with its
+  confirmation.
+- *Move*, *Add location* and *Remove* refuse an item with a top-level location (its parent is the root node: the
+  content root, Media, Users ...), and the root node is no target.
 - Node ids are positive integers (`positiveId()`, `idList()`, at most 100 per request); anything else is refused.
 - The checks and actions are the view `ezmultiupload/service` (POST only, JSON): `check`, `browse`, `move`,
   `addlocation`, `remove`. Uploads stay `ezmultiupload/upload/<node>`; the location, the class's create permission,

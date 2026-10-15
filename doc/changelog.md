@@ -1,6 +1,15 @@
 # ezmultiupload changelog
 
-## Unreleased
+## 6.1.3 (2026-10-15)
+
+The service and the ZIP importer check access and limits more strictly (pull request #5), with two further checks
+of the location actions.
+
+- Fixed: *Remove* asks, as the kernel's remove view does, whether the user may remove every location of the item
+  with everything below it (`can_remove_all`), and refuses an item with items below it; it checked the item's own
+  locations only.
+- Fixed: *Move*, *Add location* and *Remove* refuse an item with a top-level location, and the root node as a
+  target.
 
 - Fixed: A location the user cannot read is answered by the service like one that does not exist: no name, no path
   and the same message (`check`, and the reason of `uploadTarget()`).
