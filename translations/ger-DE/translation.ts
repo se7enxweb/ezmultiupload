@@ -790,5 +790,49 @@
         <source>Will be uploaded as a file</source>
         <translation>Wird als Datei hochgeladen</translation>
     </message>
+    <message>
+        <source>Skipped.</source>
+        <translation>Übersprungen.</translation>
+    </message>
+    <message>
+        <source>Skipped: a device, not a file.</source>
+        <translation>Übersprungen: ein Gerät, keine Datei.</translation>
+    </message>
+    <message>
+        <source>Skipped: a file of the operating system or a hidden file.</source>
+        <translation>Übersprungen: eine Datei des Betriebssystems oder eine versteckte Datei.</translation>
+    </message>
+    <message>
+        <source>Skipped: a link, not a file.</source>
+        <translation>Übersprungen: ein Link, keine Datei.</translation>
+    </message>
+    <message>
+        <source>Skipped: compressed suspiciously strongly (a ZIP bomb?).</source>
+        <translation>Übersprungen: verdächtig stark komprimiert (eine ZIP-Bombe?).</translation>
+    </message>
+    <message>
+        <source>Skipped: nested too deeply.</source>
+        <translation>Übersprungen: zu tief verschachtelt.</translation>
+    </message>
+    <message>
+        <source>Skipped: the ZIP file has too many entries.</source>
+        <translation>Übersprungen: Die ZIP-Datei hat zu viele Einträge.</translation>
+    </message>
+    <message>
+        <source>Skipped: the entry is not in the ZIP file.</source>
+        <translation>Übersprungen: Der Eintrag ist nicht in der ZIP-Datei.</translation>
+    </message>
+    <message>
+        <source>Skipped: the file is too large.</source>
+        <translation>Übersprungen: Die Datei ist zu groß.</translation>
+    </message>
+    <message>
+        <source>Skipped: the files in the ZIP file are too large together.</source>
+        <translation>Übersprungen: Die Dateien in der ZIP-Datei sind zusammen zu groß.</translation>
+    </message>
+    <message>
+        <source>Skipped: this type of file is not taken.</source>
+        <translation>Übersprungen: Dieser Dateityp wird nicht angenommen.</translation>
+    </message>
 </context>
 </TS>

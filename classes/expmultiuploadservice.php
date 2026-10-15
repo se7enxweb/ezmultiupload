@@ -871,6 +871,121 @@ class expMultiuploadService
     // ---- ZIP files ----------------------------------------------------------------------------------------------
 
     /**
+     * Whether ZIP files can be imported: the importer is there, the zip extension is loaded and
+     * ezmultiupload.ini [ZipSettings] ZipImport is not disabled.
+     *
+     * @return bool
+     */
+    public static function zipEnabled()
+    {
+        if ( !class_exists( 'expMultiuploadZipImporter' ) || !class_exists( 'ZipArchive' ) )
+            return false;
+        $options = expMultiuploadZipImporter::iniOptions();
+        return !isset( $options['enabled'] ) || (bool)$options['enabled'];
+    }
+
+    /**
+     * Whether a file is a ZIP file: by its name (.zip) and its first bytes (a local file header or an empty
+     * archive's end record), never by the name alone.
+     *
+     * @param string $name
+     * @param string $path
+     * @return bool
+     */
+    public static function isZipFile( $name, $path )
+    {
+        if ( !preg_match( '/\.zip\z/i', (string)$name ) || !is_file( $path ) )
+            return false;
+        $head = (string)file_get_contents( $path, false, null, 0, 4 );
+        return $head === "PK\x03\x04" || $head === "PK\x05\x06";
+    }
+
+    /**
+     * The importer's reason code as a translated message for the page.
+     *
+     * @param string $code
+     * @return string
+     */
+    public static function zipReason( $code )
+    {
+        $t = function ( $s ) { return ezpI18n::tr( 'extension/ezmultiupload', $s ); };
+        switch ( (string)$code )
+        {
+            case '': return '';
+            case 'type_not_allowed': return $t( 'Skipped: this type of file is not taken.' );
+            case 'too_big': return $t( 'Skipped: the file is too large.' );
+            case 'unsafe_path': return $t( 'Skipped: the path is not safe.' );
+            case 'symlink': return $t( 'Skipped: a link, not a file.' );
+            case 'device': return $t( 'Skipped: a device, not a file.' );
+            case 'too_deep': return $t( 'Skipped: nested too deeply.' );
+            case 'encrypted': return $t( 'The ZIP file is encrypted. Encrypted ZIP files are not supported; unpack it and upload the files.' );
+            case 'ratio_exceeded': return $t( 'Skipped: compressed suspiciously strongly (a ZIP bomb?).' );
+            case 'too_many_entries': return $t( 'Skipped: the ZIP file has too many entries.' );
+            case 'total_size_exceeded': return $t( 'Skipped: the files in the ZIP file are too large together.' );
+            case 'system_file': return $t( 'Skipped: a file of the operating system or a hidden file.' );
+            case 'unreadable': return $t( 'Skipped: the entry could not be read.' );
+            case 'not_found': return $t( 'Skipped: the entry is not in the ZIP file.' );
+            case 'invalid_zip': return $t( 'The file is not a ZIP file that can be read.' );
+            case 'temp_dir': return $t( 'The ZIP file could not be unpacked on the server.' );
+        }
+        return $t( 'Skipped.' );
+    }
+
+    /**
+     * The entries of expMultiuploadZipImporter::inspect() as the rows zipEntries() checks: the key is the entry's
+     * path in the archive, the folders are its directories (a ZIP file inside the archive is a folder of its name
+     * without ".zip"). A ZIP file inside that can be read is left out (its files are listed); one that is skipped is
+     * listed with its reason. With extract()'s answer, each row gets its extracted file, or the reason it was skipped.
+     *
+     * @param array $inspect inspect()'s answer
+     * @param array|null $extract extract()'s answer
+     * @return array[]
+     */
+    public static function zipImporterEntries( array $inspect, $extract = null )
+    {
+        $files = array();
+        $skipped = array();
+        if ( is_array( $extract ) )
+        {
+            foreach ( isset( $extract['files'] ) ? $extract['files'] : array() as $file )
+                $files[$file['relativePath']] = $file['path'];
+            $skipped = isset( $extract['skipped'] ) ? $extract['skipped'] : array();
+        }
+        $rows = array();
+        foreach ( isset( $inspect['entries'] ) ? $inspect['entries'] : array() as $entry )
+        {
+            if ( !empty( $entry['nested'] ) && $entry['status'] === 'ok' )
+                continue;
+            // the system's own files and hidden files are left out silently, as the page has always done
+            if ( (string)$entry['reason'] === 'system_file' )
+                continue;
+            $parts = explode( '/', (string)$entry['path'] );
+            array_pop( $parts );
+            $dirs = array();
+            foreach ( $parts as $part )
+                if ( $part !== '' && $part !== '.' && $part !== '..' )
+                    $dirs[] = preg_replace( '/\.zip\z/i', '', $part );
+            $status = (string)$entry['status'];
+            $code = (string)$entry['reason'];
+            $file = null;
+            if ( is_array( $extract ) && $status === 'ok' )
+            {
+                if ( isset( $files[$entry['path']] ) )
+                    $file = $files[$entry['path']];
+                else
+                {
+                    $status = 'skipped';
+                    $code = isset( $skipped[$entry['path']] ) ? (string)$skipped[$entry['path']] : 'not_found';
+                }
+            }
+            $rows[] = array( 'key' => (string)$entry['path'], 'name' => (string)$entry['name'], 'dirs' => $dirs,
+                             'size' => (int)$entry['size'], 'mime' => (string)$entry['mime'], 'file' => $file,
+                             'status' => $status === 'ok' ? 'ok' : 'skipped', 'reason' => self::zipReason( $code ), 'reasonCode' => $code );
+        }
+        return $rows;
+    }
+
+    /**
      * The class of the folder items "Keep the folder structure" makes (ezmultiupload.ini [ZipSettings] FolderClass).
      *
      * @return string
@@ -966,7 +1081,7 @@ class expMultiuploadService
      * with the same name and size there already (also twice in the archive).
      *
      * @param eZContentObjectTreeNode $node the target
-     * @param array $entries expMultiuploadZip::walk()'s entries
+     * @param array $entries zipImporterEntries()
      * @param string $mode 'keep' or 'flat'
      * @param bool $create make the folders (import) or only look (inspection)
      * @param array $folderCache
@@ -982,7 +1097,7 @@ class expMultiuploadService
         $out = array();
         foreach ( $entries as $entry )
         {
-            $row = array( 'key' => $entry['key'], 'name' => $entry['name'], 'path' => implode( '/', array_merge( $entry['dirs'], array( $entry['name'] ) ) ),
+            $row = array( 'key' => $entry['key'], 'name' => $entry['name'], 'path' => $entry['key'],
                           'folder' => '', 'size' => (int)$entry['size'], 'class' => '', 'className' => '', 'status' => $entry['status'],
                           'reason' => $entry['reason'], 'duplicate' => null, 'file' => $entry['file'], 'location' => null );
             if ( $row['status'] !== 'ok' )
@@ -990,7 +1105,8 @@ class expMultiuploadService
                 $out[] = $row;
                 continue;
             }
-            $mime = static::mimeOfFile( $entry['file'], $entry['name'] );
+            // the type the importer found by content; again from the extracted file when there is one
+            $mime = !empty( $entry['file'] ) ? static::mimeOfFile( $entry['file'], $entry['name'] ) : ( isset( $entry['mime'] ) ? (string)$entry['mime'] : self::mimeType( $entry['name'] ) );
             $detected = self::classForMime( $mime );
             if ( !array_key_exists( $detected['identifier'], $classes ) )
                 $classes[$detected['identifier']] = static::fetchClassByIdentifier( $detected['identifier'] );
@@ -1011,7 +1127,7 @@ class expMultiuploadService
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'Skipped: this type of file is not taken in this location.' );
             else if ( $limit && $row['size'] > $limit )
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'Skipped: the file is larger than %max.', null, array( '%max' => self::sizeText( $limit ) ) );
-            else if ( !static::contentMatches( $class, $entry['file'], $entry['name'] ) )
+            else if ( !empty( $entry['file'] ) && !static::contentMatches( $class, $entry['file'], $entry['name'] ) )
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'Skipped: the file is not an image by its content.' );
             else if ( static::altTextRequired( $class ) )
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'Skipped: this image needs an alternative text; upload it on its own.' );
@@ -1339,8 +1455,8 @@ class expMultiuploadService
             'maxSizeText' => self::maxFileSize() ? self::sizeText( self::maxFileSize() ) : '',
             'fileTypes' => self::fileTypes( $node ),
             'parallel' => 3,
-            'zipEnabled' => class_exists( 'expMultiuploadZip' ) && !empty( expMultiuploadZip::settings()['enabled'] ),
-            'zipPreference' => class_exists( 'expMultiuploadZip' ) ? expMultiuploadZip::PREFERENCE_MODE : '',
+            'zipEnabled' => self::zipEnabled(),
+            'zipPreference' => 'exp_multiupload_zip_mode',
             'zipMode' => eZPreferences::value( 'exp_multiupload_zip_mode' ) === 'flat' ? 'flat' : 'keep',
             // "Import compressed zip file(s) contents": off unless the user turned it on (eZPreference 1)
             'zipImport' => (string)eZPreferences::value( 'exp_multiupload_zip_import' ) === '1',

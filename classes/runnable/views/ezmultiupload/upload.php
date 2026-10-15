@@ -200,8 +200,10 @@ class Upload extends \Exponential\Runnable\ModuleView
     }
 
     /**
-     * A ZIP file's inspection or import: the archive is walked in a private directory of this request
-     * (expMultiuploadZip), which is removed afterwards, also after a failure.
+     * A ZIP file's inspection or import through expMultiuploadZipImporter: inspect() lists the entries (nothing is
+     * written that stays), extract() writes the ticked ones that pass every check to a private directory of this
+     * request, which cleanup() removes afterwards, also after a failure. Each extracted file is then checked as an
+     * upload (expMultiuploadService::zipEntries()) and made by the kernel's upload of a local file.
      *
      * @param string $action 'inspect' or 'import'
      * @param \eZContentObjectTreeNode $node the target
@@ -212,43 +214,48 @@ class Upload extends \Exponential\Runnable\ModuleView
     private static function zip( $action, $node, $http, $keepDraft )
     {
         $post = function ( $name ) use ( $http ) { return $http->hasPostVariable( $name ) ? $http->postVariable( $name ) : null; };
-        $limits = \expMultiuploadZip::settings();
-        if ( empty( $limits['enabled'] ) )
+        if ( !\expMultiuploadService::zipEnabled() )
             return array( 'ok' => false, 'errors' => array( \ezpI18n::tr( 'extension/ezmultiupload', 'ZIP files are not taken on this site.' ) ) );
         $canFetch = \eZHTTPFile::canFetch( 'Filedata', 0 );
         $file = ( $canFetch === true || $canFetch === \eZHTTPFile::UPLOADEDFILE_OK ) ? \eZHTTPFile::fetch( 'Filedata' ) : null;
-        if ( !$file instanceof \eZHTTPFile )
-            return array( 'ok' => false, 'errors' => array( \ezpI18n::tr( 'extension/ezmultiupload', 'The file is larger than %max.', null,
-                                                                          array( '%max' => \expMultiuploadService::sizeText( \expMultiuploadService::maxFileSize() ) ) ) ) );
-        $path = $file->attribute( 'filename' );
-        $name = (string)$file->attribute( 'original_filename' );
         $max = \expMultiuploadService::maxFileSize();
-        if ( $max && (int)$file->attribute( 'filesize' ) > $max )
-            return array( 'ok' => false, 'errors' => array( \ezpI18n::tr( 'extension/ezmultiupload', 'The file is larger than %max.', null, array( '%max' => \expMultiuploadService::sizeText( $max ) ) ) ) );
-        if ( !\expMultiuploadZip::isZip( $name, $path ) )
+        if ( !$file instanceof \eZHTTPFile || ( $max && (int)$file->attribute( 'filesize' ) > $max ) )
+            return array( 'ok' => false, 'errors' => array( \ezpI18n::tr( 'extension/ezmultiupload', 'The file is larger than %max.', null,
+                                                                          array( '%max' => \expMultiuploadService::sizeText( $max ) ) ) ) );
+        $path = $file->attribute( 'filename' );
+        if ( !\expMultiuploadService::isZipFile( (string)$file->attribute( 'original_filename' ), $path ) )
             return array( 'ok' => false, 'errors' => array( \ezpI18n::tr( 'extension/ezmultiupload', 'The file is not a ZIP file that can be read.' ) ) );
         $mode = $post( 'UploadZipMode' ) === 'flat' ? 'flat' : 'keep';
         $policy = in_array( $post( 'UploadZipDuplicates' ), array( 'skip', 'rename', 'upload' ), true ) ? $post( 'UploadZipDuplicates' ) : 'skip';
-        $selected = null;
+
+        $importer = new \expMultiuploadZipImporter();
+        $inspect = $importer->inspect( $path );
+        if ( empty( $inspect['ok'] ) )
+            return array( 'ok' => false, 'refused' => $inspect['error'],
+                          'errors' => array( \expMultiuploadService::zipReason( $inspect['error'] ) ?: (string)$inspect['message'] ) );
+        if ( !empty( $inspect['refused'] ) && in_array( 'encrypted', $inspect['refused'], true ) )
+            return array( 'ok' => false, 'refused' => 'encrypted', 'errors' => array( \expMultiuploadService::zipReason( 'encrypted' ) ) );
+
+        $cache = array();
+        if ( $action === 'inspect' )
+        {
+            $rows = \expMultiuploadService::zipEntries( $node, \expMultiuploadService::zipImporterEntries( $inspect ), $mode, false, $cache );
+            return array( 'ok' => true, 'mode' => $mode, 'zip' => \expMultiuploadService::zipSummary( $rows ) );
+        }
+
+        // the ticked entries (their paths in the archive), checked again by extract(), never taken as they are
+        $selected = array();
         if ( is_string( $post( 'UploadZipEntries' ) ) && $post( 'UploadZipEntries' ) !== '' )
         {
             $keys = json_decode( $post( 'UploadZipEntries' ), true );
             $selected = is_array( $keys ) ? array_values( array_filter( $keys, 'is_string' ) ) : array();
         }
-
-        $dir = \expMultiuploadZip::workDirectory();
-        if ( $dir === false )
-            return array( 'ok' => false, 'errors' => array( \ezpI18n::tr( 'extension/ezmultiupload', 'The ZIP file could not be unpacked on the server.' ) ) );
+        $extract = $importer->extract( $path, $selected );
         try
         {
-            $zip = new \expMultiuploadZip( $dir, $limits );
-            $walk = $zip->walk( $path, $name );
-            if ( !$walk['ok'] )
-                return array( 'ok' => false, 'refused' => $walk['reason'], 'errors' => array( $walk['error'] ) );
-            $cache = array();
-            $rows = \expMultiuploadService::zipEntries( $node, $walk['entries'], $mode, $action === 'import', $cache );
-            if ( $action === 'inspect' )
-                return array( 'ok' => true, 'mode' => $mode, 'zip' => \expMultiuploadService::zipSummary( $rows ) );
+            if ( empty( $extract['ok'] ) )
+                return array( 'ok' => false, 'errors' => array( \expMultiuploadService::zipReason( $extract['error'] ) ?: (string)$extract['message'] ) );
+            $rows = \expMultiuploadService::zipEntries( $node, \expMultiuploadService::zipImporterEntries( $inspect, $extract ), $mode, true, $cache );
             $results = \expMultiuploadService::zipImport( $rows, $selected, $policy, $keepDraft );
             $counts = array( 'done' => 0, 'draft' => 0, 'skipped' => 0, 'failed' => 0, 'unselected' => 0, 'ok' => 0 );
             foreach ( $results as $r )
@@ -257,7 +264,7 @@ class Upload extends \Exponential\Runnable\ModuleView
         }
         finally
         {
-            \expMultiuploadZip::removeDirectory( $dir );
+            $importer->cleanup( isset( $extract['tmpDir'] ) ? (string)$extract['tmpDir'] : '' );
         }
     }
 

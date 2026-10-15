@@ -763,5 +763,49 @@
         <source>Will be uploaded as a file</source>
         <translation>Will be uploaded as a file</translation>
     </message>
+    <message>
+        <source>Skipped.</source>
+        <translation>Skipped.</translation>
+    </message>
+    <message>
+        <source>Skipped: a device, not a file.</source>
+        <translation>Skipped: a device, not a file.</translation>
+    </message>
+    <message>
+        <source>Skipped: a file of the operating system or a hidden file.</source>
+        <translation>Skipped: a file of the operating system or a hidden file.</translation>
+    </message>
+    <message>
+        <source>Skipped: a link, not a file.</source>
+        <translation>Skipped: a link, not a file.</translation>
+    </message>
+    <message>
+        <source>Skipped: compressed suspiciously strongly (a ZIP bomb?).</source>
+        <translation>Skipped: compressed suspiciously strongly (a ZIP bomb?).</translation>
+    </message>
+    <message>
+        <source>Skipped: nested too deeply.</source>
+        <translation>Skipped: nested too deeply.</translation>
+    </message>
+    <message>
+        <source>Skipped: the ZIP file has too many entries.</source>
+        <translation>Skipped: the ZIP file has too many entries.</translation>
+    </message>
+    <message>
+        <source>Skipped: the entry is not in the ZIP file.</source>
+        <translation>Skipped: the entry is not in the ZIP file.</translation>
+    </message>
+    <message>
+        <source>Skipped: the file is too large.</source>
+        <translation>Skipped: the file is too large.</translation>
+    </message>
+    <message>
+        <source>Skipped: the files in the ZIP file are too large together.</source>
+        <translation>Skipped: the files in the ZIP file are too large together.</translation>
+    </message>
+    <message>
+        <source>Skipped: this type of file is not taken.</source>
+        <translation>Skipped: this type of file is not taken.</translation>
+    </message>
 </context>
 </TS>
