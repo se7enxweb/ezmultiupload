@@ -128,15 +128,18 @@ class expMultiuploadService
     /**
      * Whether a request may change something: a POST, not sent from another site (Sec-Fetch-Site, where the
      * browser sends it), with the session's form token. Where no form token is in use (the form token extension is
-     * not active, or the user is anonymous), the browser's Sec-Fetch-Site header must say "same-origin" or "none":
-     * a request without it is refused, since nothing else tells it from one sent by another site.
+     * not active, or the user is anonymous), the browser's Sec-Fetch-Site header must say "same-origin" or "none";
+     * where the browser sends no Sec-Fetch-Site (plain HTTP, older browsers), its Origin header must name this host.
+     * A request with neither is refused, since nothing else tells it from one sent by another site.
      *
      * @param string $method
      * @param string|null $secFetchSite
      * @param mixed $token
+     * @param string|null $origin the Origin header
+     * @param string|null $host the Host header
      * @return string|true true, or the reason it is refused
      */
-    public static function requestAllowed( $method, $secFetchSite, $token )
+    public static function requestAllowed( $method, $secFetchSite, $token, $origin = null, $host = null )
     {
         if ( strtoupper( (string)$method ) !== 'POST' )
             return ezpI18n::tr( 'extension/ezmultiupload', 'This address only takes POST requests.' );
@@ -144,13 +147,39 @@ class expMultiuploadService
             return ezpI18n::tr( 'extension/ezmultiupload', 'The request came from another site.' );
         if ( static::expectedToken() === null )
         {
-            if ( !in_array( $secFetchSite, array( 'same-origin', 'none' ), true ) )
+            if ( $secFetchSite !== null && $secFetchSite !== '' )
+                $sameOrigin = in_array( $secFetchSite, array( 'same-origin', 'none' ), true );
+            else
+                $sameOrigin = self::originMatchesHost( $origin, $host );
+            if ( !$sameOrigin )
                 return ezpI18n::tr( 'extension/ezmultiupload', 'The request came from another site.' );
             return true;
         }
         if ( !self::tokenValid( $token ) )
             return ezpI18n::tr( 'extension/ezmultiupload', 'The form token is missing or wrong. Reload the page and try again.' );
         return true;
+    }
+
+    /**
+     * Whether an Origin header ("https://example.com:8443") names the host of the Host header ("example.com:8443"),
+     * without regard to case; false when either is missing or the origin is "null".
+     *
+     * @param mixed $origin
+     * @param mixed $host
+     * @return bool
+     */
+    public static function originMatchesHost( $origin, $host )
+    {
+        if ( !is_string( $origin ) || !is_string( $host ) || $host === '' )
+            return false;
+        $parts = parse_url( $origin );
+        if ( !is_array( $parts ) || empty( $parts['host'] ) || !isset( $parts['scheme'] )
+             || !in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true ) )
+            return false;
+        $originHost = strtolower( $parts['host'] ) . ( isset( $parts['port'] ) ? ':' . (int)$parts['port'] : '' );
+        $default = strtolower( $parts['scheme'] ) === 'https' ? ':443' : ':80';
+        $host = strtolower( trim( $host ) );
+        return $originHost === $host || $originHost . $default === $host || $originHost === $host . $default;
     }
 
     // ---- limits -------------------------------------------------------------------------------------------------
@@ -740,7 +769,7 @@ class expMultiuploadService
                 $parent = null;
             $locations[] = array( 'nodeId' => (int)$assigned->attribute( 'node_id' ),
                                   'main' => (int)$assigned->attribute( 'node_id' ) === (int)$object->attribute( 'main_node_id' ),
-                                  'parentId' => (int)$assigned->attribute( 'parent_node_id' ),
+                                  'parentId' => $parent ? (int)$assigned->attribute( 'parent_node_id' ) : 0,
                                   'pathText' => $parent ? implode( ' / ', static::pathNames( $parent ) ) : '',
                                   'url' => static::url( 'content/view/full/' . (int)$assigned->attribute( 'node_id' ) ) );
         }
@@ -906,10 +935,13 @@ class expMultiuploadService
                 continue;
             }
             $all = array();
+            $visible = array();
             $allowed = true;
             foreach ( $object->assignedNodes() as $assigned )
             {
                 $all[] = (int)$assigned->attribute( 'node_id' );
+                if ( $assigned->canRead() )
+                    $visible[] = (int)$assigned->attribute( 'node_id' );
                 if ( !$assigned->canRemove() )
                     $allowed = false;
             }
@@ -923,7 +955,7 @@ class expMultiuploadService
             else
                 eZContentOperationCollection::deleteObject( $all, true );
             eZContentObject::clearCache();
-            $items[] = array( 'nodeId' => (int)$nodeID, 'ok' => true, 'error' => '', 'removed' => $all );
+            $items[] = array( 'nodeId' => (int)$nodeID, 'ok' => true, 'error' => '', 'removed' => $visible );
         }
         return array( 'ok' => true, 'items' => $items );
     }

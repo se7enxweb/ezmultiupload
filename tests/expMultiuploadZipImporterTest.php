@@ -21,6 +21,7 @@
  *          budget is skipped "total_size_exceeded" and never opened
  *  ZI-15 - past MaxEntries the whole walk stops after one more MaxEntries rows, over all levels
  *  ZI-16 - extract() removes the directory it made when the walk fails with an exception
+ *  ZI-17 - a directory an earlier call left behind is removed by the next call once it is older than an hour
  *
  * Run: php vendor/bin/phpunit extension/ezmultiupload/tests/expMultiuploadZipImporterTest.php
  *
@@ -435,6 +436,29 @@ class expMultiuploadZipImporterTest extends PHPUnit\Framework\TestCase
             $this->assertSame( 'walk failed', $e->getMessage() );
         }
         $this->assertSame( array( '.', '..' ), scandir( $base ) );
+    }
+
+    public function testStaleDirectoriesOfEarlierCallsAreRemoved()
+    {
+        $base = $this->dir . '/var/expmultiupload-zip-import-' . ( function_exists( 'posix_geteuid' ) ? posix_geteuid() : getmyuid() );
+        mkdir( $base, 0700, true );
+        $old = $base . '/' . str_repeat( 'a', 24 );
+        $young = $base . '/' . str_repeat( 'b', 24 );
+        $other = $base . '/keep-me';
+        foreach ( array( $old, $young, $other ) as $dir )
+        {
+            mkdir( $dir, 0700 );
+            file_put_contents( $dir . '/left.txt', 'left' );
+        }
+        touch( $old, time() - 2 * 3600 );
+        touch( $other, time() - 2 * 3600 );
+
+        $this->importer->inspect( $this->zip( 'sweep.zip', array( 'a.txt' => 'Some notes.' ) ) );
+        $this->assertDirectoryDoesNotExist( $old );
+        $this->assertDirectoryExists( $young );
+        $this->assertDirectoryExists( $other, 'only the directories this importer makes are removed' );
+        $this->importer->cleanup( $young );
+        $this->importer->cleanup( $other );
     }
 
     /** The files below $dir, relative, sorted */

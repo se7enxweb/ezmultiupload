@@ -10,7 +10,8 @@
  *  SA-02 - a location's path and the picker's path leave out the locations above it the user cannot read
  *  SA-03 - move, addlocation and remove answer an item the user cannot read as one that does not exist
  *  SA-04 - an item's other locations are listed only where the user can read them
- *  SA-05 - without a form token in use, a request is taken only with Sec-Fetch-Site same-origin or none
+ *  SA-05 - without a form token in use, a request is taken only with Sec-Fetch-Site same-origin or none, or, where
+ *          the browser sends no Sec-Fetch-Site, with an Origin of this host
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
@@ -195,6 +196,7 @@ namespace
         {
             $item = $this->item( 90, 'Photo' );
             $item->parent = $this->node( 91, 'Public folder' );
+            $item->values['parent_node_id'] = 91;
             $item->parent->path = array();
             $other = $this->node( 92, 'Photo', false, 93 );
             $other->parent = $this->node( 93, 'Hidden folder', false );
@@ -205,6 +207,7 @@ namespace
             $info = expMultiuploadAccessService::itemInfo( $item );
             $this->assertSame( array( 90, 94 ), array_column( $info['locations'], 'nodeId' ) );
             $this->assertSame( array( 'Public folder', '' ), array_column( $info['locations'], 'pathText' ) );
+            $this->assertSame( array( 91, 0 ), array_column( $info['locations'], 'parentId' ) );
         }
 
         public function testWithoutFormTokenOnlySameOriginIsTaken()
@@ -216,6 +219,17 @@ namespace
             $this->assertIsString( expMultiuploadAccessService::requestAllowed( 'POST', 'cross-site', null ) );
             $this->assertTrue( expMultiuploadAccessService::requestAllowed( 'POST', 'same-origin', null ) );
             $this->assertTrue( expMultiuploadAccessService::requestAllowed( 'POST', 'none', null ) );
+
+            // no Sec-Fetch-Site (plain HTTP, older browsers): the Origin must name this host
+            $this->assertTrue( expMultiuploadAccessService::requestAllowed( 'POST', null, null, 'https://cms.example.org', 'cms.example.org' ) );
+            $this->assertTrue( expMultiuploadAccessService::requestAllowed( 'POST', null, null, 'http://cms.example.org:8080', 'CMS.example.org:8080' ) );
+            $this->assertTrue( expMultiuploadAccessService::requestAllowed( 'POST', null, null, 'https://cms.example.org:443', 'cms.example.org' ) );
+            $this->assertIsString( expMultiuploadAccessService::requestAllowed( 'POST', null, null, 'https://evil.example.net', 'cms.example.org' ) );
+            $this->assertIsString( expMultiuploadAccessService::requestAllowed( 'POST', null, null, 'https://cms.example.org.evil.net', 'cms.example.org' ) );
+            $this->assertIsString( expMultiuploadAccessService::requestAllowed( 'POST', null, null, 'null', 'cms.example.org' ) );
+            $this->assertIsString( expMultiuploadAccessService::requestAllowed( 'POST', null, null, null, 'cms.example.org' ) );
+            // a Sec-Fetch-Site that is sent decides, whatever the Origin says
+            $this->assertIsString( expMultiuploadAccessService::requestAllowed( 'POST', 'cross-site', null, 'https://cms.example.org', 'cms.example.org' ) );
 
             expMultiuploadAccessService::$token = 'session-token';
             $this->assertTrue( expMultiuploadAccessService::requestAllowed( 'POST', null, 'session-token' ) );

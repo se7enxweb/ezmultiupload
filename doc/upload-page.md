@@ -159,10 +159,14 @@ link or button to the upload page.
   form token extension and again by `expMultiuploadService::requestAllowed()`, constant-time), never one sent from
   another site (`Sec-Fetch-Site`). The token is the session's, so it is the same on every server and worker.
   Where no form token is in use (the form token extension is not active, or the user is anonymous), only a request
-  whose browser sends `Sec-Fetch-Site: same-origin` (or `none`) is taken.
+  whose browser sends `Sec-Fetch-Site: same-origin` (or `none`) is taken; a browser that sends no `Sec-Fetch-Site`
+  (plain HTTP, older browsers) must send an `Origin` of this host. A client that sends neither is refused.
 - A location or an item the user cannot read is answered as one that does not exist: no name, no path, the same
   message. Paths and the picker's path leave out the locations above that the user cannot read, and an uploaded
-  item lists only the locations the user can read.
+  item lists only the locations the user can read. `ezmultiupload/upload/<node>` answers a location the user cannot
+  read with "not found", as one that does not exist.
+- A request that ends without its own cleanup (time or memory limit) leaves its ZIP directory behind; the next ZIP
+  import removes such directories once they are older than an hour.
 - Node ids are positive integers (`positiveId()`, `idList()`, at most 100 per request); anything else is refused.
 - The checks and actions are the view `ezmultiupload/service` (POST only, JSON): `check`, `browse`, `move`,
   `addlocation`, `remove`. Uploads stay `ezmultiupload/upload/<node>`; the location, the class's create permission,

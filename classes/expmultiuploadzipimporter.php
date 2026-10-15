@@ -47,6 +47,9 @@ class expMultiuploadZipImporter
     /** Bytes read from an entry to find its type */
     const HEAD_BYTES = 65536;
 
+    /** A directory of an earlier call older than this many seconds is removed by the next call (a request that died) */
+    const STALE_SECONDS = 3600;
+
     /** Bytes per read when an entry is copied */
     const CHUNK_BYTES = 65536;
 
@@ -884,6 +887,7 @@ class expMultiuploadZipImporter
             return false;
         if ( is_link( $base ) )
             return false;
+        $this->removeStale( $base );
         for ( $i = 0; $i < 5; $i++ )
         {
             $dir = $base . '/' . bin2hex( random_bytes( 12 ) );
@@ -894,6 +898,26 @@ class expMultiuploadZipImporter
             }
         }
         return false;
+    }
+
+    /**
+     * Removes the directories below $base older than STALE_SECONDS: those of a request that ended without its own
+     * cleanup (a time limit or memory limit is not an exception, so no finally runs).
+     *
+     * @param string $base
+     */
+    protected function removeStale( string $base ): void
+    {
+        $before = time() - self::STALE_SECONDS;
+        foreach ( (array)@scandir( $base ) as $name )
+        {
+            $dir = $base . '/' . $name;
+            if ( !is_string( $name ) || !preg_match( '/^[0-9a-f]{24}\z/', $name ) || is_link( $dir ) || !is_dir( $dir ) )
+                continue;
+            $time = @filemtime( $dir );
+            if ( $time !== false && $time < $before )
+                $this->cleanup( $dir );
+        }
     }
 
     /** PHP's upload limit: the smaller of upload_max_filesize and post_max_size that is set, 0 for none */

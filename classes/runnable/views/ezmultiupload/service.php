@@ -29,7 +29,9 @@ class Service extends \Exponential\Runnable\ModuleView
 
         $allowed = \expMultiuploadService::requestAllowed( \eZSys::serverVariable( 'REQUEST_METHOD', true ),
                                                           \eZSys::serverVariable( 'HTTP_SEC_FETCH_SITE', true ),
-                                                          $post( 'ezxform_token' ) );
+                                                          $post( 'ezxform_token' ),
+                                                          \eZSys::serverVariable( 'HTTP_ORIGIN', true ),
+                                                          \eZSys::serverVariable( 'HTTP_HOST', true ) );
         if ( $allowed !== true )
             return self::answer( array( 'ok' => false, 'error' => $allowed ), strtoupper( (string)\eZSys::serverVariable( 'REQUEST_METHOD', true ) ) === 'POST' ? 403 : 405 );
 

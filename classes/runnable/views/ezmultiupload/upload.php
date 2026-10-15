@@ -48,7 +48,9 @@ class Upload extends \Exponential\Runnable\ModuleView
             // for the class the file becomes, and the alternative text a class may require.
             $allowed = \expMultiuploadService::requestAllowed( \eZSys::serverVariable( 'REQUEST_METHOD', true ),
                                                               \eZSys::serverVariable( 'HTTP_SEC_FETCH_SITE', true ),
-                                                              $http->hasPostVariable( 'ezxform_token' ) ? $http->postVariable( 'ezxform_token' ) : null );
+                                                              $http->hasPostVariable( 'ezxform_token' ) ? $http->postVariable( 'ezxform_token' ) : null,
+                                                              \eZSys::serverVariable( 'HTTP_ORIGIN', true ),
+                                                              \eZSys::serverVariable( 'HTTP_HOST', true ) );
             if ( $allowed !== true )
                 $result['errors'][] = array( 'description' => $allowed );
 
@@ -167,14 +169,11 @@ class Upload extends \Exponential\Runnable\ModuleView
             // Fetch parent node
             $parentNode = \eZContentObjectTreeNode::fetch( $parentNodeID );
 
-            // Check if parent node object exists
-            if( !$parentNode )
+            // A location that does not exist and one the user cannot read get the same answer. One the user cannot
+            // upload to (no create access, or a class that is not an upload target) shows the page with the reason,
+            // so another location can be chosen.
+            if( !$parentNode || !$parentNode->attribute( 'can_read' ) )
                 return $this->viewResult( isset( $Result ) ? $Result : null,  $module->handleError( \eZError::KERNEL_NOT_FOUND, 'kernel' ) );
-
-            // A location the user cannot read is refused. One the user cannot upload to (no create access, or a class
-            // that is not an upload target) shows the page with the reason, so another location can be chosen.
-            if( !$parentNode->attribute( 'can_read' ) )
-                return $this->viewResult( isset( $Result ) ? $Result : null,  $module->handleError( \eZError::KERNEL_ACCESS_DENIED, 'kernel' ) );
 
             // Create string with available file types for GUI uploader
             $availableFileTypes = \expMultiuploadService::fileTypes( $parentNode );
