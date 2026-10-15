@@ -1,5 +1,11 @@
 # ezmultiupload changelog
 
+## 6.1.2 (2026-10-15)
+
+- Added: A template fetch function, `fetch( 'ezmultiupload', 'can_upload', hash( 'node_id', $node_id ) )`, true
+  when the current user can upload files at the node (`expMultiuploadService::canUploadAt()`). The
+  administration's node view uses it for its Upload button. Documented in `doc/fetch-functions.md`.
+
 ## 6.1.1 (2026-10-15)
 
 - Updated: The create permission checks read a node's class id from its object (6.1.0 logged "Attribute
