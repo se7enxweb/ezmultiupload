@@ -127,7 +127,9 @@ class expMultiuploadService
 
     /**
      * Whether a request may change something: a POST, not sent from another site (Sec-Fetch-Site, where the
-     * browser sends it), with the session's form token.
+     * browser sends it), with the session's form token. Where no form token is in use (the form token extension is
+     * not active, or the user is anonymous), the browser's Sec-Fetch-Site header must say "same-origin" or "none":
+     * a request without it is refused, since nothing else tells it from one sent by another site.
      *
      * @param string $method
      * @param string|null $secFetchSite
@@ -140,6 +142,12 @@ class expMultiuploadService
             return ezpI18n::tr( 'extension/ezmultiupload', 'This address only takes POST requests.' );
         if ( $secFetchSite !== null && $secFetchSite !== '' && !in_array( $secFetchSite, array( 'same-origin', 'same-site', 'none' ), true ) )
             return ezpI18n::tr( 'extension/ezmultiupload', 'The request came from another site.' );
+        if ( static::expectedToken() === null )
+        {
+            if ( !in_array( $secFetchSite, array( 'same-origin', 'none' ), true ) )
+                return ezpI18n::tr( 'extension/ezmultiupload', 'The request came from another site.' );
+            return true;
+        }
         if ( !self::tokenValid( $token ) )
             return ezpI18n::tr( 'extension/ezmultiupload', 'The form token is missing or wrong. Reload the page and try again.' );
         return true;
@@ -270,17 +278,15 @@ class expMultiuploadService
     /**
      * Whether files can be uploaded below $node at all: it is read and created in by the user, and its class is
      * one of [MultiUploadSettings] AvailableClasses[] or its node id one of AvailableSubtreeNode[], as the upload
-     * page has always asked.
+     * page has always asked. A location the user cannot read gets the same answer as one that does not exist.
      *
      * @param eZContentObjectTreeNode|null $node
      * @return string|true true, or why not
      */
     public static function uploadTarget( $node )
     {
-        if ( !$node )
+        if ( !$node || !$node->canRead() )
             return ezpI18n::tr( 'extension/ezmultiupload', 'The location does not exist.' );
-        if ( !$node->canRead() )
-            return ezpI18n::tr( 'extension/ezmultiupload', 'You cannot read this location.' );
         if ( !$node->canCreate() )
             return ezpI18n::tr( 'extension/ezmultiupload', 'You cannot create content in this location.' );
         $ini = eZINI::instance( 'ezmultiupload.ini' );
@@ -329,7 +335,8 @@ class expMultiuploadService
     }
 
     /**
-     * The path of $node as names, from the first level below the root to the node itself.
+     * The path of $node as names, from the first level below the root to the node itself; a location above it the
+     * user cannot read is left out (its name is not the user's to see).
      *
      * @param eZContentObjectTreeNode $node
      * @return string[]
@@ -339,7 +346,7 @@ class expMultiuploadService
         $names = array();
         foreach ( $node->fetchPath() as $parent )
         {
-            if ( (int)$parent->attribute( 'node_id' ) > 1 )
+            if ( (int)$parent->attribute( 'node_id' ) > 1 && $parent->canRead() )
                 $names[] = (string)$parent->attribute( 'name' );
         }
         $names[] = (string)$node->attribute( 'name' );
@@ -417,7 +424,7 @@ class expMultiuploadService
         {
             foreach ( $node->fetchPath() as $parent )
             {
-                if ( (int)$parent->attribute( 'node_id' ) > 1 )
+                if ( (int)$parent->attribute( 'node_id' ) > 1 && $parent->canRead() )
                     $crumbs[] = array( 'id' => (int)$parent->attribute( 'node_id' ), 'name' => (string)$parent->attribute( 'name' ) );
             }
             $crumbs[] = array( 'id' => (int)$nodeID, 'name' => (string)$node->attribute( 'name' ) );
@@ -611,6 +618,9 @@ class expMultiuploadService
     public static function check( $nodeID, $files )
     {
         $node = static::fetchNode( $nodeID );
+        // a location the user cannot read is answered as one that does not exist: no name, no path
+        if ( $node && !$node->canRead() )
+            $node = null;
         $target = static::uploadTarget( $node );
         if ( $target !== true )
             return array( 'ok' => true, 'location' => $node ? static::locationInfo( $node ) :
@@ -722,7 +732,12 @@ class expMultiuploadService
         $locations = array();
         foreach ( $object->assignedNodes() as $assigned )
         {
+            // the item's other locations are listed only where the user can read them
+            if ( (int)$assigned->attribute( 'node_id' ) !== (int)$node->attribute( 'node_id' ) && !$assigned->canRead() )
+                continue;
             $parent = $assigned->fetchParent();
+            if ( $parent && !$parent->canRead() )
+                $parent = null;
             $locations[] = array( 'nodeId' => (int)$assigned->attribute( 'node_id' ),
                                   'main' => (int)$assigned->attribute( 'node_id' ) === (int)$object->attribute( 'main_node_id' ),
                                   'parentId' => (int)$assigned->attribute( 'parent_node_id' ),
@@ -759,6 +774,19 @@ class expMultiuploadService
     }
 
     /**
+     * The node $nodeID when it exists, has an object and the user can read it; else null. An item the user cannot
+     * read is answered as one that does not exist, so the answers of the actions tell nothing about it.
+     *
+     * @param int $nodeID
+     * @return eZContentObjectTreeNode|null
+     */
+    protected static function readableItem( $nodeID )
+    {
+        $node = static::fetchNode( $nodeID );
+        return $node && $node->object() && $node->canRead() ? $node : null;
+    }
+
+    /**
      * Moves the nodes $nodeIDs below $targetID, each with the kernel's checks of content/action MoveNode (move
      * from, create the class there, not into its own subtree) and the content move operation.
      *
@@ -774,9 +802,9 @@ class expMultiuploadService
         $items = array();
         foreach ( $nodeIDs as $nodeID )
         {
-            $node = static::fetchNode( $nodeID );
+            $node = static::readableItem( $nodeID );
             $error = '';
-            if ( !$node || !$node->object() )
+            if ( !$node )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'The item does not exist.' );
             else if ( !$node->canMoveFrom() )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'You may not move this item.' );
@@ -823,7 +851,7 @@ class expMultiuploadService
         $items = array();
         foreach ( $nodeIDs as $nodeID )
         {
-            $node = static::fetchNode( $nodeID );
+            $node = static::readableItem( $nodeID );
             $object = $node ? $node->object() : null;
             $error = '';
             if ( !$object )
@@ -831,7 +859,7 @@ class expMultiuploadService
             else if ( !$object->checkAccess( 'edit' ) && !$user->hasManageLocations() )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'You may not change the locations of this item.' );
             else if ( !( $target->checkAccess( 'create', (int)$object->attribute( 'contentclass_id' ), static::nodeClassID( $target ) ) == 1
-                         || ( $target->canAddLocation() && $node->canRead() ) ) )
+                         || $target->canAddLocation() ) )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'You may not create this type of content in that location.' );
             else
             {
@@ -870,7 +898,7 @@ class expMultiuploadService
         $items = array();
         foreach ( $nodeIDs as $nodeID )
         {
-            $node = static::fetchNode( $nodeID );
+            $node = static::readableItem( $nodeID );
             $object = $node ? $node->object() : null;
             if ( !$object )
             {
