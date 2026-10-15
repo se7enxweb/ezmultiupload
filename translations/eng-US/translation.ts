@@ -807,5 +807,13 @@
         <source>Skipped: this type of file is not taken.</source>
         <translation>Skipped: this type of file is not taken.</translation>
     </message>
+    <message>
+        <source>A top-level location cannot be changed here.</source>
+        <translation>A top-level location cannot be changed here.</translation>
+    </message>
+    <message>
+        <source>This item has items below it. Remove it in the content structure.</source>
+        <translation>This item has items below it. Remove it in the content structure.</translation>
+    </message>
 </context>
 </TS>

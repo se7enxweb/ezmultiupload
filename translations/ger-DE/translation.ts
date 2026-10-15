@@ -834,5 +834,13 @@
         <source>Skipped: this type of file is not taken.</source>
         <translation>Übersprungen: Dieser Dateityp wird nicht angenommen.</translation>
     </message>
+    <message>
+        <source>A top-level location cannot be changed here.</source>
+        <translation>Ein Ort der obersten Ebene kann hier nicht geändert werden.</translation>
+    </message>
+    <message>
+        <source>This item has items below it. Remove it in the content structure.</source>
+        <translation>Unter diesem Objekt liegen weitere Objekte. Entfernen Sie es in der Inhaltsstruktur.</translation>
+    </message>
 </context>
 </TS>

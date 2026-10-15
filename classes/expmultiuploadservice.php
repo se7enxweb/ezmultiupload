@@ -816,6 +816,40 @@ class expMultiuploadService
     }
 
     /**
+     * Whether one of the locations of the object at $node is a top-level location (its parent is the root node 1:
+     * the content root, Media, Users and the like). Those are never moved, placed elsewhere or removed from the
+     * upload page; the kernel's own location actions refuse them too.
+     *
+     * @param eZContentObjectTreeNode $node
+     * @return bool
+     */
+    protected static function isTopLevel( $node )
+    {
+        $object = $node->object();
+        $nodes = $object ? $object->assignedNodes() : array( $node );
+        foreach ( $nodes ?: array( $node ) as $assigned )
+        {
+            if ( (int)$assigned->attribute( 'parent_node_id' ) <= 1 || (int)$assigned->attribute( 'node_id' ) <= 1 )
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * What the kernel's remove view asks before nodes go: whether the user may remove all of them with everything
+     * below them (subtreeRemovalInformation(), can_remove_all) and how many items are below them.
+     *
+     * @param int[] $nodeIDs
+     * @return array{canRemoveAll: bool, children: int}
+     */
+    protected static function removalInfo( array $nodeIDs )
+    {
+        $info = eZContentObjectTreeNode::subtreeRemovalInformation( $nodeIDs );
+        return array( 'canRemoveAll' => is_array( $info ) && !empty( $info['can_remove_all'] ),
+                      'children' => is_array( $info ) && isset( $info['total_child_count'] ) ? (int)$info['total_child_count'] : 0 );
+    }
+
+    /**
      * Moves the nodes $nodeIDs below $targetID, each with the kernel's checks of content/action MoveNode (move
      * from, create the class there, not into its own subtree) and the content move operation.
      *
@@ -826,7 +860,7 @@ class expMultiuploadService
     public static function move( array $nodeIDs, $targetID )
     {
         $target = static::fetchNode( $targetID );
-        if ( !$target || !$target->canRead() )
+        if ( !$target || !$target->canRead() || (int)$target->attribute( 'node_id' ) <= 1 )
             return array( 'ok' => false, 'error' => ezpI18n::tr( 'extension/ezmultiupload', 'The location does not exist.' ) );
         $items = array();
         foreach ( $nodeIDs as $nodeID )
@@ -835,6 +869,8 @@ class expMultiuploadService
             $error = '';
             if ( !$node )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'The item does not exist.' );
+            else if ( static::isTopLevel( $node ) )
+                $error = ezpI18n::tr( 'extension/ezmultiupload', 'A top-level location cannot be changed here.' );
             else if ( !$node->canMoveFrom() )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'You may not move this item.' );
             else if ( !$target->canMoveTo( (int)$node->object()->attribute( 'contentclass_id' ) ) )
@@ -874,7 +910,7 @@ class expMultiuploadService
     public static function addLocation( array $nodeIDs, $targetID )
     {
         $target = static::fetchNode( $targetID );
-        if ( !$target || !$target->canRead() )
+        if ( !$target || !$target->canRead() || (int)$target->attribute( 'node_id' ) <= 1 )
             return array( 'ok' => false, 'error' => ezpI18n::tr( 'extension/ezmultiupload', 'The location does not exist.' ) );
         $user = eZUser::currentUser();
         $items = array();
@@ -885,6 +921,8 @@ class expMultiuploadService
             $error = '';
             if ( !$object )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'The item does not exist.' );
+            else if ( static::isTopLevel( $node ) )
+                $error = ezpI18n::tr( 'extension/ezmultiupload', 'A top-level location cannot be changed here.' );
             else if ( !$object->checkAccess( 'edit' ) && !$user->hasManageLocations() )
                 $error = ezpI18n::tr( 'extension/ezmultiupload', 'You may not change the locations of this item.' );
             else if ( !( $target->checkAccess( 'create', (int)$object->attribute( 'contentclass_id' ), static::nodeClassID( $target ) ) == 1
@@ -917,7 +955,9 @@ class expMultiuploadService
 
     /**
      * Moves the objects of $nodeIDs to the trash: all their locations, each of which the user must be allowed to
-     * remove (canRemove()), through the content delete operation with move_to_trash.
+     * remove (canRemove()), through the content delete operation with move_to_trash. As the kernel's remove view,
+     * subtreeRemovalInformation() must allow all of them (can_remove_all); an item with anything below it and an
+     * item with a top-level location are refused.
      *
      * @param int[] $nodeIDs
      * @return array
@@ -945,9 +985,22 @@ class expMultiuploadService
                 if ( !$assigned->canRemove() )
                     $allowed = false;
             }
-            if ( !$allowed || !$all )
+            if ( $all && static::isTopLevel( $node ) )
+            {
+                $items[] = array( 'nodeId' => (int)$nodeID, 'ok' => false, 'error' => ezpI18n::tr( 'extension/ezmultiupload', 'A top-level location cannot be changed here.' ) );
+                continue;
+            }
+            // as the kernel's remove view: every location with everything below it must be removable; an item with
+            // anything below it is not an uploaded file and is removed in the content structure, with its confirmation
+            $removal = $allowed && $all ? static::removalInfo( $all ) : array( 'canRemoveAll' => false, 'children' => 0 );
+            if ( !$removal['canRemoveAll'] )
             {
                 $items[] = array( 'nodeId' => (int)$nodeID, 'ok' => false, 'error' => ezpI18n::tr( 'extension/ezmultiupload', 'You may not remove this item.' ) );
+                continue;
+            }
+            if ( $removal['children'] > 0 )
+            {
+                $items[] = array( 'nodeId' => (int)$nodeID, 'ok' => false, 'error' => ezpI18n::tr( 'extension/ezmultiupload', 'This item has items below it. Remove it in the content structure.' ) );
                 continue;
             }
             if ( eZOperationHandler::operationIsAvailable( 'content_delete' ) )

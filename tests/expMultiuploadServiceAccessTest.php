@@ -12,6 +12,8 @@
  *  SA-04 - an item's other locations are listed only where the user can read them
  *  SA-05 - without a form token in use, a request is taken only with Sec-Fetch-Site same-origin or none, or, where
  *          the browser sends no Sec-Fetch-Site, with an Origin of this host
+ *  SA-06 - remove asks for the whole subtree (can_remove_all) and refuses an item with items below it
+ *  SA-07 - move, addlocation and remove refuse an item with a top-level location; the root node is no target
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
@@ -113,6 +115,21 @@ namespace
         protected static function expectedToken() { return self::$token; }
         protected static function isContainer( $node ) { return true; }
         protected static function imageUrl( $object ) { return ''; }
+        /** node id => array( canRemoveAll, children ) as subtreeRemovalInformation() would say; default: removable, no children */
+        public static $removal = array();
+        protected static function removalInfo( array $nodeIDs )
+        {
+            $info = array( 'canRemoveAll' => true, 'children' => 0 );
+            foreach ( $nodeIDs as $id )
+            {
+                if ( isset( self::$removal[$id] ) )
+                {
+                    $info['canRemoveAll'] = $info['canRemoveAll'] && self::$removal[$id][0];
+                    $info['children'] += self::$removal[$id][1];
+                }
+            }
+            return $info;
+        }
     }
 
     class expMultiuploadServiceAccessTest extends PHPUnit\Framework\TestCase
@@ -134,9 +151,9 @@ namespace
         }
 
         /** An item with an object, at $id */
-        private function item( $id, $name, $readable = true )
+        private function item( $id, $name, $readable = true, $parentID = 1 )
         {
-            $node = $this->node( $id, $name, $readable );
+            $node = $this->node( $id, $name, $readable, $parentID );
             $object = new expMultiuploadAccessObject( array( 'id' => $id * 10, 'name' => $name, 'main_node_id' => $id,
                                                              'contentclass_id' => 5 ) );
             $object->nodes = array( $node );
@@ -190,6 +207,42 @@ namespace
             $this->assertSame( array( $missing, $missing ), array_column( $placed['items'], 'error' ) );
             $removed = expMultiuploadAccessService::remove( array( 81, 82 ) );
             $this->assertSame( array( $missing, $missing ), array_column( $removed['items'], 'error' ) );
+        }
+
+        public function testRemoveAsksForTheWholeSubtreeAndRefusesItemsWithChildren()
+        {
+            expMultiuploadAccessService::$removal = array( 101 => array( false, 3 ), 102 => array( true, 2 ) );
+            foreach ( array( 101 => 'Folder with protected children', 102 => 'Folder with children' ) as $id => $name )
+                $this->item( $id, $name, true, 100 )->removable = true;
+            $this->item( 103, 'Not removable', true, 100 )->removable = false;
+
+            $result = expMultiuploadAccessService::remove( array( 101, 102, 103 ) );
+            $this->assertSame( array( false, false, false ), array_column( $result['items'], 'ok' ) );
+            $this->assertSame( array( 'You may not remove this item.',
+                                      'This item has items below it. Remove it in the content structure.',
+                                      'You may not remove this item.' ), array_column( $result['items'], 'error' ) );
+            expMultiuploadAccessService::$removal = array();
+        }
+
+        public function testTopLevelLocationsAndTheRootAreRefused()
+        {
+            $this->node( 110, 'Target', true, 2 );
+            $this->node( 1, 'root' );
+            $top = $this->item( 2, 'Content root' );
+            $top->movable = $top->removable = true;
+            // an item placed below a folder as well as at the top level
+            $placed = $this->item( 111, 'Placed twice', true, 110 );
+            $placed->movable = true;
+            $placed->object()->nodes[] = $this->node( 112, 'Placed twice', true, 1 );
+
+            $refused = 'A top-level location cannot be changed here.';
+            $this->assertSame( array( $refused, $refused ), array_column( expMultiuploadAccessService::move( array( 2, 111 ), 110 )['items'], 'error' ) );
+            $this->assertSame( array( $refused, $refused ), array_column( expMultiuploadAccessService::addLocation( array( 2, 111 ), 110 )['items'], 'error' ) );
+            $this->assertSame( array( $refused ), array_column( expMultiuploadAccessService::remove( array( 2 ) )['items'], 'error' ) );
+
+            // the root node is no target
+            $this->assertFalse( expMultiuploadAccessService::move( array( 111 ), 1 )['ok'] );
+            $this->assertFalse( expMultiuploadAccessService::addLocation( array( 111 ), 1 )['ok'] );
         }
 
         public function testItemInfoListsReadableLocationsOnly()
