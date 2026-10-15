@@ -67,6 +67,77 @@ field for it). The archive is unpacked into a private directory of the request,
 PHP-FPM may run as different users), under names made by the server, and removed when the request ends, also after
 a failure. Nothing in an archive is run.
 
+## ZIP import
+
+`expMultiuploadZipImporter` (`classes/expmultiuploadzipimporter.php`) is the import backend: a class with no
+database, no session and no state between calls, so it can be called from a view, a cronjob or a test alike.
+
+```php
+$importer = new expMultiuploadZipImporter();               // options over ezmultiupload.ini [ZipSettings]
+$list = $importer->inspect( $zipPath );                    // ok, error, message, refused[], totalBytes, entries[]
+$out = $importer->extract( $zipPath, $chosenPaths, '' );   // '' = a new private directory under var/<site>/
+try
+{
+    foreach ( $out['files'] as $file )                     // path (absolute), relativePath, size, mime, class
+    {
+        // create the content object from $file['path']
+    }
+}
+finally
+{
+    $importer->cleanup( $out['tmpDir'] );                  // safe to call twice
+}
+```
+
+- `inspect()` lists every entry, also those of ZIP files inside, with `name`, `path` (UTF-8, inside the archive;
+  `inner.zip/a.jpg` for an entry of a nested ZIP file), `size`, `compressedSize`, `mime` (by content: libmagic on the
+  entry's first 64 KB), `class` (upload.ini `MimeClassMap[]`, as the upload page), `depth` (1 for the uploaded
+  archive), `nested`, `status` (`ok` or `skipped`) and `reason`: `type_not_allowed`, `too_big`, `unsafe_path`,
+  `symlink`, `device`, `too_deep`, `encrypted`, `ratio_exceeded`, `too_many_entries`, `total_size_exceeded`,
+  `system_file`, `unreadable`. An archive that cannot be used at all has `ok` false and `error`: `disabled`,
+  `zip_extension_missing` (ext-zip is required), `not_found`, `invalid_zip`, `temp_dir`.
+- `extract()` writes the chosen entries that pass every check (checked again, never taken from the caller) under
+  their path into the directory and returns them; a nested ZIP file's path chooses everything in it. A chosen path
+  that is skipped or not in the archive is in `skipped` with its reason.
+- `cleanup()` removes the directory recursively, links without following them.
+
+Limits (options: `maxDepth`, `maxEntries`, `maxTotalBytes`, `maxRatio`, `ratioMinSize`, `maxFileSize`,
+`maxPathDepth`, `allowedMimeTypes`, `deniedExtensions`, `skipNames`, `skipHidden`, `classMap`, `enabled`):
+
+| Setting | Default | |
+|---|---|---|
+| `ZipImport` | enabled | disabled: `inspect()` and `extract()` answer `disabled` |
+| `MaxDepth` | 3 | the uploaded archive is 1; a ZIP file that would open level 4 is skipped `too_deep` |
+| `MaxEntries` | 1000 | over all levels; the entries over it are skipped `too_many_entries` |
+| `MaxTotalSize` | 500M | uncompressed, over all levels, lowered to PHP's `upload_max_filesize`/`post_max_size`; files over it are skipped `total_size_exceeded` |
+| `MaxCompressionRatio`, `CompressionRatioMinSize` | 100, 1M | an entry of at least 1 MB compressed more than 100 times is skipped `ratio_exceeded` |
+| `MaxFileSize` | empty: `[MultiUploadSettings] MaxFileSize` | per file, with PHP's upload limits; skipped `too_big` |
+| `AllowedMIMETypes[]` | image.ini's image types (with SVG) and PDF, text, CSV, RTF, Office, OpenDocument, audio, video | by content; `group/*` for a group |
+| `DeniedExtensions[]` | php, phtml, phar, exe, sh, js, html and more | never taken, whatever the content |
+
+Safety rules:
+
+- Nothing is written outside the directory: paths with `..`, an absolute path, a drive letter (`C:\`) or a NUL are
+  skipped; every parent directory is checked with `realpath()` against the directory before a file is written, and
+  files are opened with `x`, so an existing file or link is never written through.
+- Symbolic links and devices (Unix mode bits of the entry) are never extracted; encrypted entries are refused
+  (`statIndex()` `encryption_method`).
+- `__MACOSX/`, `.DS_Store`, `Thumbs.db`, `desktop.ini` and hidden files are skipped as `system_file`.
+- The type is found from the content, not the name; an extension can only refine what content cannot tell apart
+  (a `.docx` that libmagic calls a ZIP file), never to an image type. PHP code in a `.txt` file is `text/x-php` and
+  skipped.
+- Entries are copied from their stream in 64 KB chunks with a running byte budget: the file stops at the size the
+  archive declares, the per-file limit and what is left of the total, so a lying size header cannot write more.
+- Names that are not UTF-8 are converted (CP437 when a byte 0x80-0xA5 is in them, else ISO-8859-1) and NFC
+  normalized; control characters are removed.
+- Directories are 0700 and files 0600, under `var/<site>/expmultiupload-zip-import-<system user id>/<random>`: one
+  base directory per system user, as Velocity's workers (root) and PHP-FPM (the site user) may differ, and a new
+  directory per call, so persistent workers share nothing between requests. Nested ZIP files are unpacked into a
+  scratch directory of the call and removed with it.
+
+Tests: `php vendor/bin/phpunit extension/ezmultiupload/tests/expMultiuploadZipImporterTest.php` (from Exponential's
+root; the archives are made by the test, no database).
+
 ## Settings
 
 `ezmultiupload.ini [MultiUploadSettings]`:
@@ -92,6 +163,8 @@ a failure. Nothing in an archive is run.
 
 - `classes/expmultiuploadservice.php` — the checks and actions (`expMultiuploadService`).
 - `classes/expmultiuploadzip.php` — reading ZIP files (`expMultiuploadZip`).
+- `classes/expmultiuploadzipimporter.php` — the ZIP import backend (`expMultiuploadZipImporter`), tested by
+  `tests/expMultiuploadZipImporterTest.php` in this extension.
 - `classes/runnable/views/ezmultiupload/upload.php`, `service.php` — the views.
 - `design/admin4/templates/ezmultiupload/upload.tpl`, `upload_body.tpl` — the page, in the frame of the content
   action pages (box header, box content, control bar with the main action first) with the shared controls.
