@@ -15,36 +15,24 @@
         <translation>Multicarga</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Error</translation>
-    </message>
-    <message>
         <source>The files are uploaded to</source>
-        <translation>Los archivos se van a cargar a </translation>
+        <translation>Los archivos se suben a</translation>
     </message>
     <message>
         <source>Select files</source>
         <translation>Seleccionar archivos</translation>
     </message>
     <message>
-        <source>Unable to load Flash content. You can download the latest version of Flash Player from the</source>
-        <translation type="obsolete">No se puede cargar el contenido Flash. Descargue la última versiónde Flash Player desde</translation>
-    </message>
-    <message>
-        <source>Adobe Flash Player Download Center</source>
-        <translation type="obsolete">Centro de descargas de Adobe Flash Player</translation>
-    </message>
-    <message>
-        <source>All files received.</source>
-        <translation>Se han recibido todos los archivos.</translation>
+        <source>Error</source>
+        <translation>Error</translation>
     </message>
     <message>
         <source>Thumbnail created.</source>
         <translation>Miniatura creada.</translation>
     </message>
     <message>
-        <source>Starting...</source>
-        <translation type="obsolete">Iniciando...</translation>
+        <source>All files received.</source>
+        <translation>Se han recibido todos los archivos.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -65,6 +53,50 @@
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
         <translation>Javascript está deshabilitado. ¡Es necesario para el multiupload!</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>o suéltalos aquí</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Cancelar la subida de %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>En espera</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Subiendo</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Hecho</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Fallido</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Cancelado</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Datos JSON no válidos</translation>
+    </message>
+    <message>
+        <source>Unable to load Flash content. You can download the latest version of Flash Player from the</source>
+        <translation type="obsolete">No se puede cargar el contenido Flash. Descargue la última versiónde Flash Player desde</translation>
+    </message>
+    <message>
+        <source>Adobe Flash Player Download Center</source>
+        <translation type="obsolete">Centro de descargas de Adobe Flash Player</translation>
+    </message>
+    <message>
+        <source>Starting...</source>
+        <translation type="obsolete">Iniciando...</translation>
     </message>
 </context>
 </TS>
