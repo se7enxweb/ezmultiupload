@@ -14,6 +14,8 @@
  *          the browser sends no Sec-Fetch-Site, with an Origin of this host
  *  SA-06 - remove asks for the whole subtree (can_remove_all) and refuses an item with items below it
  *  SA-07 - move, addlocation and remove refuse an item with a top-level location; the root node is no target
+ *  SA-08 - a ZIP entry refused by its type, size, content or alternative text makes no folder ("keep the folder
+ *          structure"); only an entry that passes them has its folders made
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
@@ -130,6 +132,34 @@ namespace
             }
             return $info;
         }
+    }
+
+    /** A content class in memory */
+    class expMultiuploadAccessClass
+    {
+        public $values;
+        public function __construct( array $values ) { $this->values = $values; }
+        public function attribute( $name ) { return isset( $this->values[$name] ) ? $this->values[$name] : null; }
+        public function dataMap() { return array(); }
+    }
+
+    /** The service for the checks of ZIP entries: classes, folders and permissions in memory, folders made recorded */
+    class expMultiuploadZipEntriesService extends expMultiuploadAccessService
+    {
+        /** the folder names makeFolder() was asked for */
+        public static $made = array();
+        protected static function fetchClassByIdentifier( $identifier )
+        {
+            return $identifier !== '' ? new expMultiuploadAccessClass( array( 'id' => 1, 'identifier' => $identifier, 'name' => ucfirst( $identifier ) ) ) : null;
+        }
+        protected static function childFolder( $parent, $name ) { return null; }
+        protected static function makeFolder( $parent, $name )
+        {
+            self::$made[] = $name;
+            return new expMultiuploadAccessNode( array( 'node_id' => 1000 + count( self::$made ), 'name' => $name, 'class_identifier' => 'folder' ) );
+        }
+        protected static function childFiles( $node ) { return array(); }
+        protected static function canCreateClass( $node, $class ) { return true; }
     }
 
     class expMultiuploadServiceAccessTest extends PHPUnit\Framework\TestCase
@@ -261,6 +291,30 @@ namespace
             $this->assertSame( array( 90, 94 ), array_column( $info['locations'], 'nodeId' ) );
             $this->assertSame( array( 'Public folder', '' ), array_column( $info['locations'], 'pathText' ) );
             $this->assertSame( array( 91, 0 ), array_column( $info['locations'], 'parentId' ) );
+        }
+
+        public function testZipImportMakesFoldersOnlyForEntriesThatPassTheirChecks()
+        {
+            $saved = eZINI::$values;
+            eZINI::$values['ezmultiupload.ini']['FileTypeSettings_120'] = array( 'FileType' => array( '*.jpg' ) );
+            eZINI::$values['upload.ini'] = array( 'CreateSettings' => array( 'MimeClassMap' => array( 'image' => 'image' ), 'DefaultClass' => 'file' ) );
+            expMultiuploadZipEntriesService::$made = array();
+            $target = $this->node( 120, 'Uploads' );
+            $entry = function ( $path, $mime ) {
+                $parts = explode( '/', $path );
+                $name = array_pop( $parts );
+                return array( 'key' => $path, 'name' => $name, 'dirs' => $parts, 'size' => 10, 'mime' => $mime,
+                              'file' => null, 'status' => 'ok', 'reason' => '' );
+            };
+            $cache = array();
+            $rows = expMultiuploadZipEntriesService::zipEntries( $target, array( $entry( 'docs/report.pdf', 'application/pdf' ),
+                                                                                 $entry( 'pics/a.jpg', 'image/jpeg' ) ), 'keep', true, $cache );
+            eZINI::$values = $saved;
+
+            $this->assertSame( array( 'skipped', 'ok' ), array_column( $rows, 'status' ) );
+            $this->assertSame( 'Skipped: this type of file is not taken in this location.', $rows[0]['reason'] );
+            // the folder of the refused entry is never made
+            $this->assertSame( array( 'pics' ), expMultiuploadZipEntriesService::$made );
         }
 
         public function testWithoutFormTokenOnlySameOriginIsTaken()

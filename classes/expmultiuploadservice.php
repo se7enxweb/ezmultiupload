@@ -1258,16 +1258,14 @@ class expMultiuploadService
             $class = $classes[$detected['identifier']];
             $row['class'] = $detected['identifier'];
             $row['className'] = $class ? (string)$class->attribute( 'name' ) : $detected['identifier'];
-            $where = $mode === 'keep' ? static::entryLocation( $node, $entry['dirs'], $create, $folderCache )
-                                      : array( 'node' => $node, 'missing' => false, 'error' => '', 'path' => '' );
-            $dest = $where['node'];
             $row['folder'] = $mode === 'keep' ? implode( ' / ', $entry['dirs'] ) : '';
             $limit = $class ? self::smallestLimit( array( $maxSize, static::classMaxSize( $class ) ) ) : $maxSize;
             $reason = '';
+            $where = array( 'node' => $node, 'missing' => false, 'error' => '', 'path' => '' );
+            // the checks that do not depend on the location come first: the folders of an entry are looked up (and,
+            // on import, made) only for an entry that passes them, so a refused entry leaves no empty folder behind
             if ( !$class )
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'The content class %class does not exist.', null, array( '%class' => $detected['identifier'] ) );
-            else if ( $where['error'] !== '' )
-                $reason = $where['error'];
             else if ( !self::typeAllowed( $entry['name'], $types ) )
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'Skipped: this type of file is not taken in this location.' );
             else if ( $limit && $row['size'] > $limit )
@@ -1276,8 +1274,16 @@ class expMultiuploadService
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'Skipped: the file is not an image by its content.' );
             else if ( static::altTextRequired( $class ) )
                 $reason = ezpI18n::tr( 'extension/ezmultiupload', 'Skipped: this image needs an alternative text; upload it on its own.' );
-            else if ( !static::canCreateClass( $dest, $class ) )
-                $reason = ezpI18n::tr( 'extension/ezmultiupload', 'You may not create %class content in this location.', null, array( '%class' => $row['className'] ) );
+            else
+            {
+                if ( $mode === 'keep' )
+                    $where = static::entryLocation( $node, $entry['dirs'], $create, $folderCache );
+                if ( $where['error'] !== '' )
+                    $reason = $where['error'];
+                else if ( !static::canCreateClass( $where['node'], $class ) )
+                    $reason = ezpI18n::tr( 'extension/ezmultiupload', 'You may not create %class content in this location.', null, array( '%class' => $row['className'] ) );
+            }
+            $dest = $where['node'];
             if ( $reason !== '' )
             {
                 $row['status'] = 'skipped';
