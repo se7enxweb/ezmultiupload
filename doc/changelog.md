@@ -1,5 +1,11 @@
 # ezmultiupload changelog
 
+## 6.1.4 (2026-10-15)
+
+- Fixed: A ZIP import with *Keep the folder structure* makes the folder items of an entry only when the entry passes
+  the checks that do not depend on the location (type list, size, image content, alternative text); an entry
+  refused by one of them left an empty folder behind.
+
 ## 6.1.3 (2026-10-15)
 
 The service and the ZIP importer check access and limits more strictly (pull request #5), with two further checks
