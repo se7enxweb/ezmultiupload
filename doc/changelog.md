@@ -1,5 +1,15 @@
 # ezmultiupload changelog
 
+## 6.1.7 (2026-10-17)
+
+- Updated: The upload page of the classic designs (design/standard `ezmultiupload/upload.tpl`) runs from a file,
+  `ezmultiupload_upload.js`, with its configuration in the JSON of the drop zone's `data-ezmultiupload-conf`, without
+  an inline script, so it works under a Content Security Policy without `unsafe-inline`.
+- Updated: The "Upload multiple files" entry of the context menus works with an older `ezpopupmenu.js` again:
+  `ezmultiupload_menu.js` adds it to `menuArray` (to the menu that is there, never assigning `menuArray` anew) and
+  closes an open submenu when pointed at, without inline code.
+- Added: `tests/expMultiuploadClassicUploadTemplateTest.php` (CU-01 to CU-03), without a database.
+
 ## 6.1.6 (2026-10-16)
 
 - Updated: The "Upload multiple files" entry of the content tree and sub-items context menus is declared in
