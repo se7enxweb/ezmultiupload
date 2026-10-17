@@ -1,5 +1,14 @@
 # ezmultiupload changelog
 
+## 6.1.6 (2026-10-16)
+
+- Updated: The "Upload multiple files" entry of the content tree and sub-items context menus is declared in
+  `data-menu-url`, without an inline script or event handler attributes (pull request #6), so it works on an
+  administration page under a Content Security Policy without `unsafe-inline`. It needs the declared menus of
+  `ezpopupmenu.js` in the administration design (Exponential 6.0.15 with the content security policy change, or
+  exp_adminui 1.0.0.36); with an older `ezpopupmenu.js` the entry does not lead anywhere.
+- Added: `tests/expMultiuploadContextMenuTemplatesTest.php` (CM-01, CM-02), without a database.
+
 ## 6.1.4 (2026-10-15)
 
 - Fixed: A ZIP import with *Keep the folder structure* makes the folder items of an entry only when the entry passes
