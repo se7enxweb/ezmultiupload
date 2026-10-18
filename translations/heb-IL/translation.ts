@@ -104,5 +104,13 @@
         <source>More...</source>
         <translation>עוד...</translation>
     </message>
+    <message>
+        <source>Images</source>
+        <translation>תמונות</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>קבצים</translation>
+    </message>
 </context>
 </TS>

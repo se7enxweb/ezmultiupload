@@ -36,6 +36,21 @@ class expMultiuploadFunctionCollection
     }
 
     /**
+     * fetch( 'ezmultiupload', 'dashboard_target', hash() ): the node id the dashboard's "Upload files" button opens
+     * (expMultiuploadService::dashboardTarget(): Media > Images where the user can upload there, else Media); the
+     * media root with a service that has no such method yet.
+     *
+     * @return array { result: int }
+     */
+    public static function fetchDashboardTarget()
+    {
+        $service = static::$service;
+        if ( class_exists( $service ) && method_exists( $service, 'dashboardTarget' ) )
+            return array( 'result' => (int)call_user_func( array( $service, 'dashboardTarget' ) ) );
+        return array( 'result' => (int)eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'MediaRootNode' ) );
+    }
+
+    /**
      * fetch( 'ezmultiupload', 'quick_locations', hash( 'node_id', <id> ) ): the quick location buttons of the upload
      * page for the target at the node (expMultiuploadService::quickLocations()). A node that is not there or not
      * readable, and an installation without them, give no buttons.

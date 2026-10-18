@@ -15,9 +15,10 @@ The content tree's context menu and the sub-items menu open it with "Upload mult
   again as *Use the last location*. A location that cannot take files (an item that is not a container, a location
   without create access) shows the reason and offers the nearest location above that can. Each queue row can have
   a location of its own.
-- **Quick locations** (6.1.8): under the target, one-click buttons for the well-known places: **Websites** and
-  **Media** first, then a row with the locations right below each (the sites; Images, Files, Multimedia and the
-  others under Media), in the tree's order. A click makes the place the target at once, as the picker does (the
+- **Quick locations** (6.1.8): under the target, one-click buttons for the well-known places: **Websites**,
+  **Media**, **Images** and **Files** (Media's folders, found by their URL alias paths `media/images` and
+  `media/files`) first, then a row with the locations right below Websites and Media (the sites; Multimedia and the
+  others under Media), in the tree's order, without those of the first row. A click makes the place the target at once, as the picker does (the
   hidden field `exp-mu-location-id`, the shown path, the remembered location); the target's button is pressed
   (`aria-pressed`), the place it lies in is outlined and says so to a screen reader. They are found from the content
   tree and content.ini (the kernel's `expNodeQuickPick`, Exponential 6.0.15), never from fixed node ids, and only
@@ -162,13 +163,19 @@ root; the archives are made by the test, no database).
 | Setting | Default | |
 |---|---|---|
 | `QuickLocations` | enabled | disabled: no quick location buttons |
-| `PresetList[]` | content, media | the first row; a key is `content` (content.ini `RootNode`), `media` (`MediaRootNode`), `users`, `setup`, `design`, a node id, `remote:<node remote id>` or a URL alias path |
+| `PresetList[]` | content, media, media/images, media/files | the first row; a key is `content` (content.ini `RootNode`), `media` (`MediaRootNode`), `users`, `setup`, `design`, a node id, `remote:<node remote id>` or a URL alias path |
+| `PresetLabels[<key>]` | media/images=Images, media/files=Files | the label of a key that is no named place, translated (context `extension/ezmultiupload`); else the node's name |
 | `ChildRowList[]` | content, media | the places that get a row of the locations right below them |
 | `ChildRowLimit` | 12 | buttons in a row (1 to 50); with more, *More...* |
 
 The buttons are `design:ezmultiupload/quick_locations.tpl` (design/admin, used by admin, admin4 and admin4l; an empty
 file in design/standard) from the fetch function `quick_locations` (`doc/fetch-functions.md`), drawn with the shared
 component `.a4-quickpick` of the administration's `components.css`.
+
+`ezmultiupload.ini [DashboardSettings] UploadTargetList[]` (6.1.8, default `media/images`, `media`): the
+administration dashboard's **Upload files** button opens the upload page at the first of these places the user can
+upload to (fetch function `dashboard_target`), else at the media root as before. The dashboards of admin4 (and
+admin4l) in Exponential 6.0.15 and of exp_adminui use it.
 
 ## For other pages
 

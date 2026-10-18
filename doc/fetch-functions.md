@@ -39,3 +39,13 @@ drawn by `design:ezmultiupload/quick_locations.tpl`): `presets` (Websites, Media
 locations the user can read and upload files of an uploaded class to are listed. Without the kernel's
 `expNodeQuickPick` (Exponential 6.0.15), with `[QuickLocationSettings] QuickLocations=disabled`, or for a node that is
 not there or not readable, both lists are empty.
+
+## dashboard_target
+
+```
+{def $upload_node = fetch( 'ezmultiupload', 'dashboard_target', hash() )}
+```
+
+The node id the dashboard's "Upload files" button opens: the first place of `ezmultiupload.ini [DashboardSettings]
+UploadTargetList[]` (default Media > Images, then Media) the current user can read and upload files of an uploaded
+class to, else the media root (content.ini `MediaRootNode`).

@@ -82,5 +82,13 @@
         <source>More...</source>
         <translation>Plus...</translation>
     </message>
+    <message>
+        <source>Images</source>
+        <translation>Images</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Fichiers</translation>
+    </message>
 </context>
 </TS>

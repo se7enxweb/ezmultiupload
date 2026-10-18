@@ -9,6 +9,12 @@
   locations where the user may create the classes uploaded files become are offered. The target's button is pressed
   (`aria-pressed`), the place it lies in is marked. admin4 and admin4l, and the classic page of design/admin.
   Settings: `ezmultiupload.ini [QuickLocationSettings]`; template: `ezmultiupload/quick_locations.tpl`.
+- Added: **Images** and **Files** right after **Media** in the first row (`PresetList[]` `media/images`,
+  `media/files`, found by their URL alias paths; translated labels from `PresetLabels[]`); the row under Media leaves
+  them out.
+- Added: The dashboard's **Upload files** button opens the upload page at Media > Images where the user can upload
+  there, else at Media (`[DashboardSettings] UploadTargetList[]`, fetch function `dashboard_target`,
+  `expMultiuploadService::dashboardTarget()`), with the dashboards of Exponential 6.0.15 and exp_adminui 1.0.0.43.
 - Added: The fetch function `quick_locations` and `expMultiuploadService::quickLocations()`, `quickLocationAllowed()`,
   `uploadClasses()`, `quickLocationSettings()`.
 - Added: A location of the page's script has `pathIds`, the ids of its path (the picker's rows leave them out).

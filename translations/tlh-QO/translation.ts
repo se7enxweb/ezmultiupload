@@ -105,5 +105,13 @@
         <source>More...</source>
         <translation>latlh...</translation>
     </message>
+    <message>
+        <source>Images</source>
+        <translation>mIllogh</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>teywI'pu'</translation>
+    </message>
 </context>
 </TS>

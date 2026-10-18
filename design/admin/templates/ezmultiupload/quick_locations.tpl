@@ -1,7 +1,7 @@
 {* The quick location buttons of the upload page (6.1.8): one click makes a well-known place the target, beside
    "Change location...". The first row has the places of ezmultiupload.ini [QuickLocationSettings] PresetList[]
-   (Websites, Media), then a row per place of ChildRowList[] with the locations right below it (the sites; Images,
-   Files, Multimedia ...). From fetch( 'ezmultiupload', 'quick_locations' ) (expMultiuploadService::quickLocations(),
+   (Websites, Media, Images, Files), then a row per place of ChildRowList[] with the locations right below it,
+   without those of the first row (the sites; Multimedia ... under Media). From fetch( 'ezmultiupload', 'quick_locations' ) (expMultiuploadService::quickLocations(),
    on the kernel's expNodeQuickPick): only locations the user can upload to, found from the tree and the settings.
    One file for the classic page (design/standard ezmultiupload/upload.tpl, with more=false(): it has no picker) and
    the new page of admin4 and admin4l (upload_body.tpl). The look is the shared component .a4-quickpick

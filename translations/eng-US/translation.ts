@@ -831,5 +831,13 @@
         <source>More...</source>
         <translation>More...</translation>
     </message>
+    <message>
+        <source>Images</source>
+        <translation>Images</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Files</translation>
+    </message>
 </context>
 </TS>

@@ -105,5 +105,13 @@
         <source>More...</source>
         <translation>Plura...</translation>
     </message>
+    <message>
+        <source>Images</source>
+        <translation>Imagines</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Fasciculi</translation>
+    </message>
 </context>
 </TS>

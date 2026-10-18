@@ -35,7 +35,11 @@ class expMultiuploadService
     const MAX_TEXT = 255;
 
     /** Quick locations: the places of the first row and of the rows below them without a setting, and the row length */
-    const QUICK_PRESETS = array( 'content', 'media' );
+    const QUICK_PRESETS = array( 'content', 'media', 'media/images', 'media/files' );
+    const QUICK_LABELS = array( 'media/images' => 'Images', 'media/files' => 'Files' );
+
+    /** The dashboard's "Upload files" target without a setting: the first of these the user can upload to */
+    const DASHBOARD_TARGETS = array( 'media/images', 'media' );
     const QUICK_ROWS = array( 'content', 'media' );
     const QUICK_ROW_LIMIT = 12;
 
@@ -1569,10 +1573,11 @@ class expMultiuploadService
      * The quick location buttons as configured (ezmultiupload.ini [QuickLocationSettings]): on unless QuickLocations
      * is disabled and only with the kernel's expNodeQuickPick (Exponential 6.0.15); the places of the first row
      * (PresetList[]), the places that get a row of the locations below them (ChildRowList[]), and the row length
-     * (ChildRowLimit, 1 to 50). A key is what expNodeQuickPick::source() takes: content, media, users, a node id,
-     * remote:<node remote id> or a URL alias path.
+     * (ChildRowLimit, 1 to 50) and the labels of keys that are no named place (PresetLabels[<key>], an English text
+     * translated in the context extension/ezmultiupload). A key is what expNodeQuickPick::source() takes: content,
+     * media, users, a node id, remote:<node remote id> or a URL alias path (media/images).
      *
-     * @return array hash( enabled => bool, presets => string[], rows => string[], limit => int )
+     * @return array hash( enabled => bool, presets => string[], rows => string[], limit => int, labels => hash )
      */
     public static function quickLocationSettings()
     {
@@ -1592,10 +1597,58 @@ class expMultiuploadService
             return $clean;
         };
         $limit = (int)$get( 'ChildRowLimit', self::QUICK_ROW_LIMIT );
+        $labels = array();
+        foreach ( (array)$get( 'PresetLabels', self::QUICK_LABELS ) as $key => $label )
+        {
+            if ( is_string( $key ) && is_string( $label ) && $label !== '' && strlen( $label ) <= 100 )
+                $labels[$key] = $label;
+        }
         return array( 'enabled' => $get( 'QuickLocations', 'enabled' ) !== 'disabled' && class_exists( 'expNodeQuickPick' ),
                       'presets' => $keys( $get( 'PresetList', self::QUICK_PRESETS ) ),
                       'rows' => $keys( $get( 'ChildRowList', self::QUICK_ROWS ) ),
-                      'limit' => $limit >= 1 && $limit <= 50 ? $limit : self::QUICK_ROW_LIMIT );
+                      'limit' => $limit >= 1 && $limit <= 50 ? $limit : self::QUICK_ROW_LIMIT,
+                      'labels' => $labels );
+    }
+
+    /**
+     * The label of a quick location button: PresetLabels[<key>] translated, else expNodeQuickPick's (Websites, Media
+     * ... or the node's name).
+     *
+     * @param string $key
+     * @param string $nodeName
+     * @param array $labels from quickLocationSettings()
+     * @return string
+     */
+    public static function quickLabel( $key, $nodeName, array $labels )
+    {
+        if ( isset( $labels[$key] ) )
+            return ezpI18n::tr( 'extension/ezmultiupload', $labels[$key] );
+        return class_exists( 'expNodeQuickPick' ) ? expNodeQuickPick::label( $key, $nodeName ) : (string)$nodeName;
+    }
+
+    /**
+     * The target of the dashboard's "Upload files" button: the first place of ezmultiupload.ini [DashboardSettings]
+     * UploadTargetList[] (default media/images, then media) the user can upload files of an uploaded class to; else
+     * the media root (content.ini MediaRootNode), as before 6.1.8. Without the kernel's expNodeQuickPick only the key
+     * media is found.
+     *
+     * @return int a node id
+     */
+    public static function dashboardTarget()
+    {
+        $ini = eZINI::instance( 'ezmultiupload.ini' );
+        $keys = $ini->hasVariable( 'DashboardSettings', 'UploadTargetList' ) ? (array)$ini->variable( 'DashboardSettings', 'UploadTargetList' ) : self::DASHBOARD_TARGETS;
+        $media = (int)eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'MediaRootNode' );
+        foreach ( array_slice( $keys, 0, 10 ) as $key )
+        {
+            if ( !is_string( $key ) || $key === '' )
+                continue;
+            $id = class_exists( 'expNodeQuickPick' ) ? static::quickNodeID( $key ) : ( $key === 'media' ? $media : 0 );
+            $node = $id > 1 ? static::fetchNode( $id ) : null;
+            if ( $node && $node->canRead() && static::quickLocationAllowed( $node ) )
+                return $id;
+        }
+        return $media > 0 ? $media : 43;
     }
 
     /**
@@ -1664,8 +1717,8 @@ class expMultiuploadService
 
     /**
      * The quick location buttons of the upload page for the target $current: the first row with the configured
-     * places (Websites, Media), then a row per place of ChildRowList[] with the locations right below it, in the
-     * tree's order. Only locations the user can read and upload files of an uploaded class to are offered (a place
+     * places (Websites, Media, Images, Files), then a row per place of ChildRowList[] with the locations right below
+     * it, in the tree's order, leaving out those of the first row. Only locations the user can read and upload files of an uploaded class to are offered (a place
      * that is not one still gets its row); the target is marked current, the place it lies in within.
      *
      * @param eZContentObjectTreeNode|null $current
@@ -1707,7 +1760,7 @@ class expMultiuploadService
             if ( !$node || isset( $seen[(int)$node->attribute( 'node_id' )] ) || !$allowed( $node ) )
                 continue;
             $seen[(int)$node->attribute( 'node_id' )] = true;
-            $result['presets'][] = static::quickButton( $node, expNodeQuickPick::label( $key, (string)$node->attribute( 'name' ) ), $currentID, $currentPath );
+            $result['presets'][] = static::quickButton( $node, static::quickLabel( $key, (string)$node->attribute( 'name' ), $settings['labels'] ), $currentID, $currentPath );
         }
 
         $rowsSeen = array();
@@ -1726,14 +1779,18 @@ class expMultiuploadService
                 $nodes[(int)$child['node_id']] = $child['node'];
                 $children[] = $child;
             }
+            // a place of the first row (Images, Files) is not offered twice
             $row = expNodeQuickPick::row( $children, $currentPath, $currentID, $settings['limit'],
-                                          function ( array $child ) use ( $allowed ) { return $child['node']->canRead() && $allowed( $child['node'] ); } );
+                                          function ( array $child ) use ( $allowed, $seen )
+                                          {
+                                              return !isset( $seen[(int)$child['node_id']] ) && $child['node']->canRead() && $allowed( $child['node'] );
+                                          } );
             if ( !$row['items'] )
                 continue;
             $items = array();
             foreach ( $row['items'] as $item )
                 $items[] = static::quickButton( $nodes[$item['node_id']], $item['name'], $currentID, $currentPath );
-            $result['rows'][] = array( 'key' => $key, 'label' => expNodeQuickPick::label( $key, (string)$parent->attribute( 'name' ) ),
+            $result['rows'][] = array( 'key' => $key, 'label' => static::quickLabel( $key, (string)$parent->attribute( 'name' ), $settings['labels'] ),
                                        'parent_id' => (int)$parent->attribute( 'node_id' ), 'items' => $items, 'more' => $row['more'] );
         }
         return $result;
