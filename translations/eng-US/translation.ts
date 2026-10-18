@@ -815,5 +815,21 @@
         <source>This item has items below it. Remove it in the content structure.</source>
         <translation>This item has items below it. Remove it in the content structure.</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Quick locations</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(contains the target location)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Choose another location in %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>More...</translation>
+    </message>
 </context>
 </TS>

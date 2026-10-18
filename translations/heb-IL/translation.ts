@@ -88,5 +88,21 @@
         <source>Invalid JSON data</source>
         <translation>נתוני JSON לא תקינים</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>מיקומים מהירים</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(מכיל את מיקום היעד)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>בחירת מיקום אחר בתוך %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>עוד...</translation>
+    </message>
 </context>
 </TS>

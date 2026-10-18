@@ -8,6 +8,8 @@
    The rows are drawn by expmultiupload.js from the configuration in #exp-mu-config (JSON from the view, escaped
    for HTML: expMultiuploadService::json()). Only the drop zone has CSS of its own (expmultiupload.css,
    BackendCSSFileList). No CSS in this template.
+   The quick location buttons (ezmultiupload/quick_locations.tpl) sit under the target; the hidden field
+   exp-mu-location-id holds the target node, set by them, the picker and "Use the last location" alike.
    Needs: $parent_node, $upload_config_json, $max_size_text, $file_types. *}
 {ezscript_require( array( 'exp::core', 'exp::dialog', 'expmultiupload.js' ) )}
 {ezcss_require( array( 'exp/core.css', 'exp/dialog.css' ) )}
@@ -36,6 +38,8 @@
                 <span class="a4-badge is-ok" id="exp-mu-location-state">{'Uploads allowed'|i18n( 'extension/ezmultiupload' )}</span>
             </p>
             <p class="a4-notice is-bad" id="exp-mu-location-reason" role="alert" hidden></p>
+            <input type="hidden" id="exp-mu-location-id" name="ParentNodeID" value="{$parent_node.node_id|wash}" />
+            {include uri='design:ezmultiupload/quick_locations.tpl' parent_node=$parent_node}
         </div>
         <div class="a4-card-foot">
             <button type="button" class="button" id="exp-mu-change-location">{'Change location...'|i18n( 'extension/ezmultiupload' )}</button>

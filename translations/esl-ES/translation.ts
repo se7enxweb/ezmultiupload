@@ -98,5 +98,21 @@
         <source>Starting...</source>
         <translation type="obsolete">Iniciando...</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Ubicaciones rápidas</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(contiene la ubicación de destino)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Elegir otra ubicación en %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Más...</translation>
+    </message>
 </context>
 </TS>

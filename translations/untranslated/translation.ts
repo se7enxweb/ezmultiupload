@@ -86,5 +86,21 @@
         <source>Invalid JSON data</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

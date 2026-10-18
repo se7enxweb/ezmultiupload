@@ -15,6 +15,16 @@ The content tree's context menu and the sub-items menu open it with "Upload mult
   again as *Use the last location*. A location that cannot take files (an item that is not a container, a location
   without create access) shows the reason and offers the nearest location above that can. Each queue row can have
   a location of its own.
+- **Quick locations** (6.1.8): under the target, one-click buttons for the well-known places: **Websites** and
+  **Media** first, then a row with the locations right below each (the sites; Images, Files, Multimedia and the
+  others under Media), in the tree's order. A click makes the place the target at once, as the picker does (the
+  hidden field `exp-mu-location-id`, the shown path, the remembered location); the target's button is pressed
+  (`aria-pressed`), the place it lies in is outlined and says so to a screen reader. They are found from the content
+  tree and content.ini (the kernel's `expNodeQuickPick`, Exponential 6.0.15), never from fixed node ids, and only
+  locations where the user can read, create and make at least one of the classes uploaded files become
+  (`upload.ini MimeClassMap[]`, `DefaultClass`) are offered. *More...* opens the picker at a place with more
+  locations than the row shows. *Change location...* is unchanged. The classic page of `design/admin` has the same
+  buttons (without *More...*); its next files go to the location chosen.
 - **Adding files**: *Choose files...*, *Choose a folder...* (where the browser supports it), drag and drop of files
   and folders, and images pasted from the clipboard.
 - **The queue**: per file the name, size and type, a preview of an image, the content class it becomes, its
@@ -147,6 +157,19 @@ root; the archives are made by the test, no database).
 - `MaxFileSize=64M` (new): the largest file; PHP's `upload_max_filesize` and `post_max_size` apply as well, the
   smallest is the limit. The page refuses a larger file before it is sent and the server again.
 
+`ezmultiupload.ini [QuickLocationSettings]` (6.1.8):
+
+| Setting | Default | |
+|---|---|---|
+| `QuickLocations` | enabled | disabled: no quick location buttons |
+| `PresetList[]` | content, media | the first row; a key is `content` (content.ini `RootNode`), `media` (`MediaRootNode`), `users`, `setup`, `design`, a node id, `remote:<node remote id>` or a URL alias path |
+| `ChildRowList[]` | content, media | the places that get a row of the locations right below them |
+| `ChildRowLimit` | 12 | buttons in a row (1 to 50); with more, *More...* |
+
+The buttons are `design:ezmultiupload/quick_locations.tpl` (design/admin, used by admin, admin4 and admin4l; an empty
+file in design/standard) from the fetch function `quick_locations` (`doc/fetch-functions.md`), drawn with the shared
+component `.a4-quickpick` of the administration's `components.css`.
+
 ## For other pages
 
 `expMultiuploadService::canUploadAt( $nodeIdOrNode )` says whether the current user can upload at a node (the module
@@ -189,4 +212,6 @@ link or button to the upload page.
 - `design/admin4/templates/ezmultiupload/upload.tpl`, `upload_body.tpl` — the page, in the frame of the content
   action pages (box header, box content, control bar with the main action first) with the shared controls.
 - `design/standard/javascript/expmultiupload.js`, `design/standard/stylesheets/expmultiupload.css` (the drop zone).
-- Tests (Exponential's root): `tests/tests/extension/ezmultiupload/` (PHPUnit, no database).
+- `design/admin/templates/ezmultiupload/quick_locations.tpl` — the quick location buttons (both pages).
+- Tests (Exponential's root): `tests/tests/extension/ezmultiupload/` (PHPUnit, no database), the quick locations in
+  `expMultiuploadQuickLocationsTest.php` (QL-01 to QL-05).

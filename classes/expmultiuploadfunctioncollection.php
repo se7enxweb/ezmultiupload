@@ -34,6 +34,27 @@ class expMultiuploadFunctionCollection
             return array( 'result' => false );
         return array( 'result' => (bool)call_user_func( array( $service, 'canUploadAt' ), $id ) );
     }
+
+    /**
+     * fetch( 'ezmultiupload', 'quick_locations', hash( 'node_id', <id> ) ): the quick location buttons of the upload
+     * page for the target at the node (expMultiuploadService::quickLocations()). A node that is not there or not
+     * readable, and an installation without them, give no buttons.
+     *
+     * @param mixed $nodeID
+     * @return array { result: hash( presets, rows ) }
+     */
+    public static function fetchQuickLocations( $nodeID )
+    {
+        $none = array( 'result' => array( 'presets' => array(), 'rows' => array() ) );
+        $service = static::$service;
+        if ( !class_exists( $service ) || !method_exists( $service, 'quickLocations' ) )
+            return $none;
+        $id = is_int( $nodeID ) ? $nodeID : ( is_string( $nodeID ) && ctype_digit( $nodeID ) ? (int)$nodeID : 0 );
+        $node = $id > 0 ? eZContentObjectTreeNode::fetch( $id ) : null;
+        if ( !$node instanceof eZContentObjectTreeNode || !$node->canRead() )
+            return $none;
+        return array( 'result' => call_user_func( array( $service, 'quickLocations' ), $node ) );
+    }
 }
 
 ?>

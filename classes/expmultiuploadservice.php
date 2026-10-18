@@ -34,6 +34,11 @@ class expMultiuploadService
     /** The longest title and alternative text taken from a request */
     const MAX_TEXT = 255;
 
+    /** Quick locations: the places of the first row and of the rows below them without a setting, and the row length */
+    const QUICK_PRESETS = array( 'content', 'media' );
+    const QUICK_ROWS = array( 'content', 'media' );
+    const QUICK_ROW_LIMIT = 12;
+
     // ---- input ------------------------------------------------------------------------------------------------
 
     /**
@@ -396,14 +401,45 @@ class expMultiuploadService
     }
 
     /**
+     * The ids of the path of $node, from the first level below the root to the node itself, leaving out the locations
+     * above it the user cannot read (as pathNames()). The page marks the quick location the target lies in by them.
+     *
+     * @param eZContentObjectTreeNode $node
+     * @return int[]
+     */
+    protected static function pathIds( $node )
+    {
+        $ids = array();
+        $self = (int)$node->attribute( 'node_id' );
+        foreach ( explode( '/', (string)$node->attribute( 'path_string' ) ) as $id )
+        {
+            $id = (int)$id;
+            if ( $id <= 1 )
+                continue;
+            if ( $id === $self )
+            {
+                $ids[] = $id;
+                continue;
+            }
+            $parent = static::fetchNode( $id );
+            if ( $parent && $parent->canRead() )
+                $ids[] = $id;
+        }
+        if ( $self > 1 && !in_array( $self, $ids, true ) )
+            $ids[] = $self;
+        return $ids;
+    }
+
+    /**
      * A location as the page shows it: id, name, path, view address, and whether files can be uploaded there (with
      * the reason when not).
      *
      * @param eZContentObjectTreeNode $node
      * @param string $mode 'upload' (uploadTarget()) or 'place' (the user may create something there)
+     * @param bool $ids also pathIds, the ids of the path (false for the rows of the picker)
      * @return array
      */
-    public static function locationInfo( $node, $mode = 'upload' )
+    public static function locationInfo( $node, $mode = 'upload', $ids = true )
     {
         $check = $mode === 'place'
             ? ( $node->canCreate() ? true : ezpI18n::tr( 'extension/ezmultiupload', 'You cannot create content in this location.' ) )
@@ -415,7 +451,8 @@ class expMultiuploadService
                       'pathText' => implode( ' / ', $path ),
                       'url' => static::url( 'content/view/full/' . (int)$node->attribute( 'node_id' ) ),
                       'allowed' => $check === true,
-                      'reason' => $check === true ? '' : $check );
+                      'reason' => $check === true ? '' : $check )
+               + ( $ids ? array( 'pathIds' => static::pathIds( $node ) ) : array() );
     }
 
     /**
@@ -439,7 +476,7 @@ class expMultiuploadService
             $class = $object ? $object->contentClass() : null;
             if ( !$class || !$class->attribute( 'is_container' ) )
                 continue;
-            $info = static::locationInfo( $child, $mode );
+            $info = static::locationInfo( $child, $mode, false );
             $info['hasChildren'] = (int)$child->attribute( 'children_count' ) > 0;
             unset( $info['path'], $info['pathText'] );
             $children[] = $info;
@@ -1524,6 +1561,199 @@ class expMultiuploadService
                 return static::locationInfo( $current );
         }
         return null;
+    }
+
+    // ---- quick locations ----------------------------------------------------------------------------------------
+
+    /**
+     * The quick location buttons as configured (ezmultiupload.ini [QuickLocationSettings]): on unless QuickLocations
+     * is disabled and only with the kernel's expNodeQuickPick (Exponential 6.0.15); the places of the first row
+     * (PresetList[]), the places that get a row of the locations below them (ChildRowList[]), and the row length
+     * (ChildRowLimit, 1 to 50). A key is what expNodeQuickPick::source() takes: content, media, users, a node id,
+     * remote:<node remote id> or a URL alias path.
+     *
+     * @return array hash( enabled => bool, presets => string[], rows => string[], limit => int )
+     */
+    public static function quickLocationSettings()
+    {
+        $ini = eZINI::instance( 'ezmultiupload.ini' );
+        $get = function ( $name, $default ) use ( $ini )
+        {
+            return $ini->hasVariable( 'QuickLocationSettings', $name ) ? $ini->variable( 'QuickLocationSettings', $name ) : $default;
+        };
+        $keys = function ( $list )
+        {
+            $clean = array();
+            foreach ( is_array( $list ) ? $list : array() as $key )
+            {
+                if ( is_string( $key ) && $key !== '' && strlen( $key ) <= 200 && !in_array( $key, $clean, true ) && count( $clean ) < 20 )
+                    $clean[] = $key;
+            }
+            return $clean;
+        };
+        $limit = (int)$get( 'ChildRowLimit', self::QUICK_ROW_LIMIT );
+        return array( 'enabled' => $get( 'QuickLocations', 'enabled' ) !== 'disabled' && class_exists( 'expNodeQuickPick' ),
+                      'presets' => $keys( $get( 'PresetList', self::QUICK_PRESETS ) ),
+                      'rows' => $keys( $get( 'ChildRowList', self::QUICK_ROWS ) ),
+                      'limit' => $limit >= 1 && $limit <= 50 ? $limit : self::QUICK_ROW_LIMIT );
+    }
+
+    /**
+     * The content classes uploaded files become: the classes of upload.ini [CreateSettings] MimeClassMap[] and its
+     * DefaultClass.
+     *
+     * @return string[] class identifiers
+     */
+    public static function uploadClasses()
+    {
+        $ini = eZINI::instance( 'upload.ini' );
+        $list = array_values( (array)$ini->variable( 'CreateSettings', 'MimeClassMap' ) );
+        $list[] = $ini->hasVariable( 'CreateSettings', 'DefaultClass' ) ? $ini->variable( 'CreateSettings', 'DefaultClass' ) : '';
+        $classes = array();
+        foreach ( $list as $identifier )
+        {
+            if ( is_string( $identifier ) && $identifier !== '' && !in_array( $identifier, $classes, true ) )
+                $classes[] = $identifier;
+        }
+        return $classes;
+    }
+
+    /**
+     * Whether a quick location may be offered: files can be uploaded there (uploadTarget()) and the user may create
+     * at least one of the classes uploaded files become there.
+     *
+     * @param eZContentObjectTreeNode $node
+     * @return bool
+     */
+    public static function quickLocationAllowed( $node )
+    {
+        if ( !$node || static::uploadTarget( $node ) !== true )
+            return false;
+        foreach ( static::uploadClasses() as $identifier )
+        {
+            $class = static::fetchClassByIdentifier( $identifier );
+            if ( $class && static::canCreateClass( $node, $class ) )
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * The node of a quick location key (expNodeQuickPick: the settings and the tree, never a fixed id); 0 when it is
+     * not there.
+     *
+     * @param string $key
+     * @return int
+     */
+    protected static function quickNodeID( $key )
+    {
+        $source = expNodeQuickPick::source( $key );
+        return $source === null ? 0 : expNodeQuickPick::nodeID( $source );
+    }
+
+    /**
+     * The children of a node as rows for expNodeQuickPick::row(), each with its node.
+     *
+     * @param eZContentObjectTreeNode $node
+     * @return array
+     */
+    protected static function quickChildRows( $node )
+    {
+        return expNodeQuickPick::childRows( $node );
+    }
+
+    /**
+     * The quick location buttons of the upload page for the target $current: the first row with the configured
+     * places (Websites, Media), then a row per place of ChildRowList[] with the locations right below it, in the
+     * tree's order. Only locations the user can read and upload files of an uploaded class to are offered (a place
+     * that is not one still gets its row); the target is marked current, the place it lies in within.
+     *
+     * @param eZContentObjectTreeNode|null $current
+     * @return array hash( presets => list of button, rows => list of hash( key, label, parent_id, items => list of
+     *               button, more => bool ) ); a button is hash( node_id, label, path, current, within, location: the
+     *               location as JSON for the page's script )
+     */
+    public static function quickLocations( $current )
+    {
+        $result = array( 'presets' => array(), 'rows' => array() );
+        $settings = static::quickLocationSettings();
+        if ( !$settings['enabled'] || !$current instanceof eZContentObjectTreeNode )
+            return $result;
+        $currentID = (int)$current->attribute( 'node_id' );
+        $currentPath = (string)$current->attribute( 'path_string' );
+        $cache = array();
+        $allowed = function ( $node ) use ( &$cache )
+        {
+            $id = (int)$node->attribute( 'node_id' );
+            if ( !isset( $cache[$id] ) )
+                $cache[$id] = static::quickLocationAllowed( $node );
+            return $cache[$id];
+        };
+
+        $places = array();
+        foreach ( array_merge( $settings['presets'], $settings['rows'] ) as $key )
+        {
+            if ( isset( $places[$key] ) )
+                continue;
+            $id = static::quickNodeID( $key );
+            $node = $id > 1 ? static::fetchNode( $id ) : null;
+            $places[$key] = $node && $node->canRead() ? $node : null;
+        }
+
+        $seen = array();
+        foreach ( $settings['presets'] as $key )
+        {
+            $node = $places[$key];
+            if ( !$node || isset( $seen[(int)$node->attribute( 'node_id' )] ) || !$allowed( $node ) )
+                continue;
+            $seen[(int)$node->attribute( 'node_id' )] = true;
+            $result['presets'][] = static::quickButton( $node, expNodeQuickPick::label( $key, (string)$node->attribute( 'name' ) ), $currentID, $currentPath );
+        }
+
+        $rowsSeen = array();
+        foreach ( $settings['rows'] as $key )
+        {
+            $parent = $places[$key];
+            if ( !$parent || isset( $rowsSeen[(int)$parent->attribute( 'node_id' )] ) )
+                continue;
+            $rowsSeen[(int)$parent->attribute( 'node_id' )] = true;
+            $nodes = array();
+            $children = array();
+            foreach ( static::quickChildRows( $parent ) as $child )
+            {
+                if ( !is_array( $child ) || !isset( $child['node'] ) || !$child['node'] instanceof eZContentObjectTreeNode )
+                    continue;
+                $nodes[(int)$child['node_id']] = $child['node'];
+                $children[] = $child;
+            }
+            $row = expNodeQuickPick::row( $children, $currentPath, $currentID, $settings['limit'],
+                                          function ( array $child ) use ( $allowed ) { return $child['node']->canRead() && $allowed( $child['node'] ); } );
+            if ( !$row['items'] )
+                continue;
+            $items = array();
+            foreach ( $row['items'] as $item )
+                $items[] = static::quickButton( $nodes[$item['node_id']], $item['name'], $currentID, $currentPath );
+            $result['rows'][] = array( 'key' => $key, 'label' => expNodeQuickPick::label( $key, (string)$parent->attribute( 'name' ) ),
+                                       'parent_id' => (int)$parent->attribute( 'node_id' ), 'items' => $items, 'more' => $row['more'] );
+        }
+        return $result;
+    }
+
+    /**
+     * One quick location button.
+     *
+     * @param eZContentObjectTreeNode $node
+     * @param string $label
+     * @param int $currentID
+     * @param string $currentPath
+     * @return array hash( node_id, label, path, current, within, location )
+     */
+    protected static function quickButton( $node, $label, $currentID, $currentPath )
+    {
+        $info = static::locationInfo( $node );
+        $state = expNodeQuickPick::state( $info['id'], $currentID, $currentPath );
+        return array( 'node_id' => $info['id'], 'label' => (string)$label, 'path' => $info['pathText'],
+                      'current' => $state['current'], 'within' => $state['within'], 'location' => static::json( $info ) );
     }
 
     /**

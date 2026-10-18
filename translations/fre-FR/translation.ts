@@ -66,5 +66,21 @@
         <source>Javascript has been disabled, this is needed for multiupload!</source>
         <translation>JavaScript est désactivé, c&apos;est un pré-requis au téléchargement multiple !</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Emplacements rapides</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(contient l’emplacement cible)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Choisir un autre emplacement dans %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Plus...</translation>
+    </message>
 </context>
 </TS>

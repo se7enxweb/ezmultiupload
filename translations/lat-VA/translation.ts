@@ -89,5 +89,21 @@
         <source>Invalid JSON data</source>
         <translation>Data JSON invalida</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Loci celeres</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(locum destinatum continet)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Alium locum in %name elige</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Plura...</translation>
+    </message>
 </context>
 </TS>

@@ -8,6 +8,10 @@
  *     one of [MultiUploadSettings] AvailableClasses[] / AvailableSubtreeNode[]. For a link or button to
  *     ezmultiupload/upload/<node id>; the upload page and every upload check again.
  *
+ *   fetch( 'ezmultiupload', 'quick_locations', hash( 'node_id', $parent_node.node_id ) )
+ *     the quick location buttons of the upload page for that target (expMultiuploadService::quickLocations()):
+ *     hash( presets, rows ), only the locations the user can upload to; empty without the kernel's expNodeQuickPick.
+ *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
  * @package ezmultiupload
@@ -24,5 +28,15 @@ $FunctionList['can_upload'] = array( 'name' => 'can_upload',
                                      'parameters' => array( array( 'name' => 'node_id',
                                                                    'type' => 'integer',
                                                                    'required' => true ) ) );
+
+$FunctionList['quick_locations'] = array( 'name' => 'quick_locations',
+                                          'operation_types' => array( 'read' ),
+                                          'call_method' => array( 'include_file' => 'extension/ezmultiupload/classes/expmultiuploadfunctioncollection.php',
+                                                                  'class' => 'expMultiuploadFunctionCollection',
+                                                                  'method' => 'fetchQuickLocations' ),
+                                          'parameter_type' => 'standard',
+                                          'parameters' => array( array( 'name' => 'node_id',
+                                                                        'type' => 'integer',
+                                                                        'required' => true ) ) );
 
 ?>

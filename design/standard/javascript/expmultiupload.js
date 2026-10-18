@@ -201,6 +201,44 @@
             last.hidden = !(r && r.id !== queueLocation.id);
             last.setAttribute('data-exp-mu-location', s ? 'suggested' : 'remembered');
             if (!last.hidden) { last.textContent = t(s ? 'useSuggested' : 'useLast', { '%location': r.pathText }); }
+            var field = $('exp-mu-location-id');
+            if (field) { field.value = String(queueLocation.id); }
+            markQuick();
+        }
+
+        // ---- the quick location buttons (ezmultiupload/quick_locations.tpl) ----------------------------------------
+        // Each button carries its location (data-exp-mu-quick-location, the JSON of expMultiuploadService::locationInfo());
+        // a click makes it the target as the picker does. The target's button is pressed, the one it lies in is within.
+
+        var quick = $('exp-mu-quick');
+        var quickButtons = quick ? Array.prototype.slice.call(quick.querySelectorAll('[data-exp-mu-quick-location]')) : [];
+        var withinText = quick ? (quick.getAttribute('data-exp-mu-within-text') || '') : '';
+        function markQuick() {
+            var ids = (queueLocation && queueLocation.pathIds) || [];
+            quickButtons.forEach(function (b) {
+                var id = Number(b.getAttribute('data-exp-mu-quick-id'));
+                var current = !!queueLocation && id === queueLocation.id;
+                var within = !current && ids.indexOf(id) !== -1;
+                b.setAttribute('aria-pressed', current ? 'true' : 'false');
+                b.classList.toggle('is-within', within);
+                var sr = b.querySelector('[data-exp-mu-within]');
+                if (sr) { sr.textContent = within ? ' ' + withinText : ''; }
+            });
+        }
+        quickButtons.forEach(function (b) {
+            var loc = null;
+            try { loc = JSON.parse(b.getAttribute('data-exp-mu-quick-location') || ''); } catch (e) { loc = null; }
+            if (!loc || !loc.id) { b.disabled = true; return; }
+            b.addEventListener('click', function () {
+                if (loc.id !== queueLocation.id) { setQueueLocation(loc); } else { markQuick(); }
+            });
+        });
+        if (quick) {
+            Array.prototype.forEach.call(quick.querySelectorAll('[data-exp-mu-quick-more]'), function (b) {
+                b.addEventListener('click', function () {
+                    pick('upload', Number(b.getAttribute('data-exp-mu-quick-more'))).then(function (loc) { if (loc) { setQueueLocation(loc); } });
+                });
+            });
         }
 
         function setQueueLocation(location) {

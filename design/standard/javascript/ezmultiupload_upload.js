@@ -6,6 +6,8 @@
  * data-ezmultiupload-conf. Runs on Exponential UI (exp::io, exp::dialog, exp::upload, extension expui): files are
  * chosen or dropped, sent two at a time, the progress bar and counter follow, each thumbnail is added as it arrives,
  * Cancel stops the round. A file, so the page needs no inline script (Content Security Policy without 'unsafe-inline').
+ * The quick location buttons (#exp-mu-quick, ezmultiupload/quick_locations.tpl) change the target: the address files
+ * are sent to, the shown location and the pressed button; they wait while files are being sent.
  */
 (function () {
     if (!window.Exp || !window.Exp.ready || window.ezmultiuploadUploadReady) { return; }
@@ -39,6 +41,27 @@
         });
         var up = $root.data('expUpload');
 
+        // the quick location buttons: each carries its location (JSON); a click sends the next files there
+        var $quick = $('#exp-mu-quick'), uploadBase = String(cfg.uploadURL).replace(/\/[0-9]+$/, '');
+        function markQuick(loc) {
+            var ids = loc.pathIds || [], text = $quick.attr('data-exp-mu-within-text') || '';
+            $quick.find('[data-exp-mu-quick-location]').each(function () {
+                var id = Number(this.getAttribute('data-exp-mu-quick-id')), current = id === loc.id,
+                    within = !current && ids.indexOf(id) !== -1;
+                this.setAttribute('aria-pressed', current ? 'true' : 'false');
+                $(this).toggleClass('is-within', within).find('[data-exp-mu-within]').text(within ? ' ' + text : '');
+            });
+        }
+        $quick.on('click', '[data-exp-mu-quick-location]', function () {
+            var loc;
+            try { loc = JSON.parse(this.getAttribute('data-exp-mu-quick-location') || ''); } catch (err) { return; }
+            if (!loc || !loc.id || !up.enabled) { return; }
+            up.options.url = uploadBase + '/' + encodeURIComponent(String(loc.id));
+            $('#ezmultiupload-location').text(loc.pathText || loc.name).attr('href', loc.url || '#');
+            markQuick(loc);
+            $('#ezmultiupload-status').text(String(cfg.locationChanged || '').split('%location').join(loc.pathText || loc.name));
+        });
+
         // files chosen (or dropped): a new round
         $root.on('exp:upload:add', function (e, d) {
             if (!round.length || round.every(function (f) { return f.status !== 'queued' && f.status !== 'uploading'; })) {
@@ -54,7 +77,7 @@
             round.push(d.file);
             $counter.text('0/' + round.length);
         });
-        $root.on('exp:upload:start', function () { up.disable(); });
+        $root.on('exp:upload:start', function () { up.disable(); $quick.find('button').prop('disabled', true); });
         $root.on('exp:upload:progress', function (e, d) {
             $counter.text((round.indexOf(d.file) + 1) + '/' + round.length);
             $name.text(d.file.name);
@@ -79,6 +102,7 @@
         // every file of the round is finished
         $root.on('exp:upload:complete', function (e, summary) {
             up.enable();
+            $quick.find('button').prop('disabled', false);
             if (canceled) { return; }
             // every file of the round canceled with its own Cancel button in the list: said as with the Cancel button
             if (!summary.done && !summary.failed && summary.canceled) { $message.text(cfg.uploadCanceled); $cancel.css('visibility', 'hidden'); return; }
@@ -93,6 +117,7 @@
             canceled = true;
             up.cancel();
             up.enable();
+            $quick.find('button').prop('disabled', false);
             $message.text(cfg.uploadCanceled);
         });
     });

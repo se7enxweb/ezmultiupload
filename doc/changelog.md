@@ -1,5 +1,19 @@
 # ezmultiupload changelog
 
+## 6.1.8 (2026-10-18)
+
+- Added: Quick location buttons on the upload page, under the target location: **Websites** and **Media**, then a row
+  with the locations right below each (the sites; Images, Files, Multimedia and the others under Media). One click
+  makes a place the target, as *Change location...* does, which stays. They are found from the content tree and
+  content.ini through the kernel's `expNodeQuickPick` (Exponential 6.0.15; without it there are none), and only
+  locations where the user may create the classes uploaded files become are offered. The target's button is pressed
+  (`aria-pressed`), the place it lies in is marked. admin4 and admin4l, and the classic page of design/admin.
+  Settings: `ezmultiupload.ini [QuickLocationSettings]`; template: `ezmultiupload/quick_locations.tpl`.
+- Added: The fetch function `quick_locations` and `expMultiuploadService::quickLocations()`, `quickLocationAllowed()`,
+  `uploadClasses()`, `quickLocationSettings()`.
+- Added: A location of the page's script has `pathIds`, the ids of its path (the picker's rows leave them out).
+- Added: The hidden field `exp-mu-location-id` holds the target of the new page.
+
 ## 6.1.7 (2026-10-17)
 
 - Updated: The upload page of the classic designs (design/standard `ezmultiupload/upload.tpl`) runs from a file,

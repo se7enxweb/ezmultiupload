@@ -25,3 +25,17 @@ disabled: the fetch function exists only while the extension is active.
 
 The administration's node view uses it for its Upload button (`design/admin/templates/node/view/upload_button.tpl`
 in the kernel, and exp_adminui's `window_preview_toolbar.tpl`).
+
+## quick_locations
+
+```
+{def $quick = fetch( 'ezmultiupload', 'quick_locations', hash( 'node_id', $parent_node.node_id ) )}
+```
+
+The quick location buttons of the upload page for the target at that node (`expMultiuploadService::quickLocations()`,
+drawn by `design:ezmultiupload/quick_locations.tpl`): `presets` (Websites, Media) and `rows` (each with `key`, `label`,
+`parent_id`, `items`, `more`: the locations right below a place). A button has `node_id`, `label`, `path`, `current`
+(the target), `within` (the target lies below it) and `location` (the location as JSON for the page's script). Only
+locations the user can read and upload files of an uploaded class to are listed. Without the kernel's
+`expNodeQuickPick` (Exponential 6.0.15), with `[QuickLocationSettings] QuickLocations=disabled`, or for a node that is
+not there or not readable, both lists are empty.

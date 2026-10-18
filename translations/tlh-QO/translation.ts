@@ -89,5 +89,21 @@
         <source>Invalid JSON data</source>
         <translation>JSON De&apos; lughbe&apos;</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Daq nom</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(Daq ngoQ ngaS)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>%name Daq latlh yIwIv</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>latlh...</translation>
+    </message>
 </context>
 </TS>

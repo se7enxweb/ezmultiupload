@@ -1,7 +1,8 @@
 {ezcss_require( 'ezmultiupload.css' )}
 {* The upload runs on Exponential UI (exp::io, exp::dialog, exp::upload, extension expui), in
    design/standard/javascript/ezmultiupload_upload.js; its configuration is the JSON of the drop zone's
-   data-ezmultiupload-conf (no inline script). *}
+   data-ezmultiupload-conf (no inline script). The quick location buttons (ezmultiupload/quick_locations.tpl: drawn by
+   the administration designs, empty elsewhere) change the target without leaving the page. *}
 {ezscript_require( array( 'exp::core', 'exp::io', 'exp::dialog', 'exp::upload', 'ezmultiupload_upload.js' ) )}
 {ezcss_require( array( 'exp/core.css', 'exp/dialog.css', 'exp/upload.css' ) )}
 
@@ -16,7 +17,8 @@
         <h1 class="long">{'Multiupload'|i18n('extension/ezmultiupload')}</h1>
     </div>
         <div class="attribute-description">
-            <p>{'The files are uploaded to'|i18n('extension/ezmultiupload')} <a href={$parent_node.url_alias|ezurl}>{$parent_node.name|wash}</a></p>
+            <p>{'The files are uploaded to'|i18n('extension/ezmultiupload')} <a id="ezmultiupload-location" href={$parent_node.url_alias|ezurl}>{$parent_node.name|wash}</a></p>
+            {include uri='design:ezmultiupload/quick_locations.tpl' parent_node=$parent_node more=false()}
             <div id="uploadButtonOverlay" data-ezmultiupload-conf="{json_encode( hash(
                 'uploadURL', concat( 'ezmultiupload/upload/', $parent_node.node_id )|ezurl( 'no' ),
                 'uploadVars', hash( $session_name, $session_id, 'UploadButton', 'Upload', 'ezxform_token', '@$ezxFormToken@' ),
@@ -24,6 +26,7 @@
                 'uploadCanceled', 'Upload canceled.'|i18n( 'extension/ezmultiupload' ),
                 'thumbnailCreated', 'Thumbnail created.'|i18n( 'extension/ezmultiupload' ),
                 'invalidJSON', 'Invalid JSON data'|i18n( 'extension/ezmultiupload' ),
+                'locationChanged', 'The location is now %location.'|i18n( 'extension/ezmultiupload' ),
                 'texts', hash(
                     'select', 'Select files'|i18n( 'extension/ezmultiupload' ),
                     'drop', 'or drop them here'|i18n( 'extension/ezmultiupload' ),
@@ -44,6 +47,7 @@
             <div id="multiuploadProgressBarOutline"><div id="multiuploadProgressBar"></div></div>
         </div>
         <div id="thumbnails"></div>
+        <p class="a4-sr-only" id="ezmultiupload-status" role="status" aria-live="polite"></p>
     </div>
 </div>
 

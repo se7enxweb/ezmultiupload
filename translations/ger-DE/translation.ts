@@ -842,5 +842,21 @@
         <source>This item has items below it. Remove it in the content structure.</source>
         <translation>Unter diesem Objekt liegen weitere Objekte. Entfernen Sie es in der Inhaltsstruktur.</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Schnellauswahl</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(enthält den Zielort)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Anderen Ort in %name wählen</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Mehr ...</translation>
+    </message>
 </context>
 </TS>
