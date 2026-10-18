@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="cs_CZ">
 <context>
     <name>design/admin/popupmenu</name>
     <message>
         <source>Upload multiple files</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrát více souborů</translation>
     </message>
 </context>
 <context>
     <name>extension/ezmultiupload</name>
     <message>
         <source>Multiupload</source>
-        <translation>Hromadná nahrávka</translation>
+        <translation>Hromadné nahrávání</translation>
     </message>
     <message>
         <source>Error</source>
@@ -20,7 +20,7 @@
     </message>
     <message>
         <source>The files are uploaded to</source>
-        <translation>Soubory jsou nahrány do</translation>
+        <translation>Soubory se nahrávají do</translation>
     </message>
     <message>
         <source>Select files</source>
@@ -48,23 +48,55 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Upload canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrávání zrušeno.</translation>
     </message>
     <message>
         <source>Allowed Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Povolené soubory</translation>
     </message>
     <message>
         <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nelze načíst Flash (nebo ještě není načten); pro hromadné nahrávání je nutný!</translation>
     </message>
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript je vypnutý; pro hromadné nahrávání je nutný!</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>nebo je přetáhněte sem</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Zrušit nahrávání souboru %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>Čekající</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Nahrávání</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Hotovo</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Neúspěšné</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Zrušeno</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Neplatná data JSON</translation>
     </message>
 </context>
 </TS>

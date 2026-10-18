@@ -12,7 +12,7 @@
     <name>extension/ezmultiupload</name>
     <message>
         <source>Multiupload</source>
-        <translation>Multiupload</translation>
+        <translation>Carregamento múltiplo</translation>
     </message>
     <message>
         <source>Error</source>
@@ -65,6 +65,38 @@
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
         <translation>Javascript foi desabilitado, ele é necessário para o multiupload!</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>ou solte-os aqui</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Cancelar o carregamento de %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>Aguardando</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Carregando</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Feito</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Com falha</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Cancelado</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Dados JSON inválidos</translation>
     </message>
 </context>
 </TS>

@@ -5,34 +5,34 @@
     <name>design/admin/popupmenu</name>
     <message>
         <source>Upload multiple files</source>
-        <translation>Učitaj više datoteka</translation>
+        <translation>Prenesi više datoteka</translation>
     </message>
 </context>
 <context>
     <name>extension/ezmultiupload</name>
     <message>
         <source>Multiupload</source>
-        <translation>Učitavanje više datoteka</translation>
+        <translation>Višestruki prijenos</translation>
     </message>
     <message>
         <source>The files are uploaded to</source>
-        <translation>Datoteke su učitane u</translation>
+        <translation>Datoteke su prenesene u</translation>
     </message>
     <message>
         <source>Select files</source>
-        <translation>Odaberite datoteke</translation>
+        <translation>Odaberi datoteke</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Greška</translation>
+        <translation>Pogreška</translation>
     </message>
     <message>
         <source>Thumbnail created.</source>
-        <translation>Prikaz kreiran.</translation>
+        <translation>Minijatura je stvorena.</translation>
     </message>
     <message>
         <source>All files received.</source>
-        <translation>Sve datoteke primljene.</translation>
+        <translation>Sve su datoteke primljene.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -40,7 +40,7 @@
     </message>
     <message>
         <source>Upload canceled.</source>
-        <translation>Učitavanje prekinuto.</translation>
+        <translation>Prijenos je otkazan.</translation>
     </message>
     <message>
         <source>Allowed Files</source>
@@ -48,11 +48,43 @@
     </message>
     <message>
         <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
-        <translation>Flash komponentu potrebnu za višestruko učitavanje nije moguće pokrenuti (ili još nije pokrenuta)!</translation>
+        <translation>Nije moguće učitati Flash (ili još nije učitan), a potreban je za višestruki prijenos!</translation>
     </message>
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
-        <translation>Podrška za Javascript je onemogućena, no potrebna je za višestruko učitavanje!</translation>
+        <translation>JavaScript je onemogućen, a potreban je za višestruki prijenos!</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>ili ih ispustite ovdje</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Otkaži prijenos datoteke %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>Na čekanju</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Prijenos u tijeku</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Gotovo</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Neuspjelo</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Otkazano</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Nevažeći JSON podaci</translation>
     </message>
 </context>
 </TS>

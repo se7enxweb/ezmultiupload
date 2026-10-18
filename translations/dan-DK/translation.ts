@@ -1,26 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="da_DK">
 <context>
     <name>design/admin/popupmenu</name>
     <message>
         <source>Upload multiple files</source>
-        <translation type="unfinished"></translation>
+        <translation>Upload flere filer</translation>
     </message>
 </context>
 <context>
     <name>extension/ezmultiupload</name>
     <message>
+        <source>Multiupload</source>
+        <translation>Multiupload</translation>
+    </message>
+    <message>
+        <source>The files are uploaded to</source>
+        <translation>Filerne uploades til</translation>
+    </message>
+    <message>
+        <source>Select files</source>
+        <translation>Vælg filer</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
     <message>
-        <source>Starting...</source>
-        <translation type="obsolete">Starter...</translation>
+        <source>Thumbnail created.</source>
+        <translation>Miniature oprettet.</translation>
     </message>
     <message>
         <source>All files received.</source>
-        <translation>Alle modtagne filer.</translation>
+        <translation>Alle filer modtaget.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+    <message>
+        <source>Upload canceled.</source>
+        <translation>Upload annulleret.</translation>
+    </message>
+    <message>
+        <source>Allowed Files</source>
+        <translation>Tilladte filer</translation>
+    </message>
+    <message>
+        <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
+        <translation>Flash kunne ikke indlæses (eller er ikke indlæst endnu), det kræves til multiupload!</translation>
+    </message>
+    <message>
+        <source>Javascript has been disabled, this is needed for multiupload!</source>
+        <translation>JavaScript er deaktiveret, det kræves til multiupload!</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>eller slip dem her</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Annuller uploaden af %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>Venter</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Uploader</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Udført</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Mislykkedes</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Annulleret</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Ugyldige JSON-data</translation>
+    </message>
+    <message>
+        <source>Starting...</source>
+        <translation type="obsolete">Starter...</translation>
     </message>
     <message>
         <source>Unable to load Flash content. You can download the latest version of Flash Player from the</source>
@@ -29,42 +97,6 @@
     <message>
         <source>Adobe Flash Player Download Center</source>
         <translation type="obsolete">Adobe Flash Player Download Center</translation>
-    </message>
-    <message>
-        <source>The files are uploaded to</source>
-        <translation>Filerne er uploadet til</translation>
-    </message>
-    <message>
-        <source>Select files</source>
-        <translation>Vælg filer</translation>
-    </message>
-    <message>
-        <source>Thumbnail created.</source>
-        <translation>Thumbnail er oprettet.</translation>
-    </message>
-    <message>
-        <source>Multiupload</source>
-        <translation>Multiupload</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Upload canceled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Allowed Files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Javascript has been disabled, this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

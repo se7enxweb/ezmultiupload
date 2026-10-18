@@ -5,14 +5,14 @@
     <name>design/admin/popupmenu</name>
     <message>
         <source>Upload multiple files</source>
-        <translation type="unfinished"></translation>
+        <translation>Meerdere bestanden uploaden</translation>
     </message>
 </context>
 <context>
     <name>extension/ezmultiupload</name>
     <message>
         <source>Multiupload</source>
-        <translation>Multiupload</translation>
+        <translation>Meervoudig uploaden</translation>
     </message>
     <message>
         <source>Error</source>
@@ -20,7 +20,7 @@
     </message>
     <message>
         <source>The files are uploaded to</source>
-        <translation>De bestanden werden geüpload naar</translation>
+        <translation>De bestanden worden geüpload naar</translation>
     </message>
     <message>
         <source>Select files</source>
@@ -48,23 +48,55 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuleren</translation>
     </message>
     <message>
         <source>Upload canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uploaden geannuleerd.</translation>
     </message>
     <message>
         <source>Allowed Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Toegestane bestanden</translation>
     </message>
     <message>
         <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kon Flash niet laden (of nog niet geladen); dit is nodig voor meervoudig uploaden!</translation>
     </message>
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript is uitgeschakeld; dit is nodig voor meervoudig uploaden!</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>of zet ze hier neer</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Het uploaden van %name annuleren</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>Wachtend</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Bezig met uploaden</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Klaar</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Mislukt</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Geannuleerd</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Ongeldige JSON-gegevens</translation>
     </message>
 </context>
 </TS>

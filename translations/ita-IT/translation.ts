@@ -54,5 +54,37 @@
         <source>Javascript has been disabled, this is needed for multiupload!</source>
         <translation>Javascript è stato disabilitato, è necessario per il caricamento multiplo!</translation>
     </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>o trascinali qui</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Annulla il caricamento di %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>In attesa</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Caricamento in corso</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Fatto</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Non riuscito</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Annullato</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Dati JSON non validi</translation>
+    </message>
 </context>
 </TS>

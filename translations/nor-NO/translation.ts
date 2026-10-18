@@ -5,7 +5,7 @@
     <name>design/admin/popupmenu</name>
     <message>
         <source>Upload multiple files</source>
-        <translation type="unfinished"></translation>
+        <translation>Last opp flere filer</translation>
     </message>
 </context>
 <context>
@@ -48,23 +48,55 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Upload canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Opplastingen ble avbrutt.</translation>
     </message>
     <message>
         <source>Allowed Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillatte filer</translation>
     </message>
     <message>
         <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke laste inn Flash (eller er ikke lastet ennå); dette trengs for multiopplasting!</translation>
     </message>
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript er deaktivert; dette trengs for multiopplasting!</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>eller slipp dem her</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Avbryt opplastingen av %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>Venter</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Laster opp</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Ferdig</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Mislyktes</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Avbrutt</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Ugyldige JSON-data</translation>
     </message>
 </context>
 </TS>
