@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="fr_FR">
 <context>
     <name>design/admin/popupmenu</name>
     <message>
@@ -40,7 +40,7 @@
     </message>
     <message>
         <source>Thumbnail created.</source>
-        <translation>Vignette créé.</translation>
+        <translation>Vignette créée.</translation>
     </message>
     <message>
         <source>Starting...</source>
@@ -72,7 +72,7 @@
     </message>
     <message>
         <source>(contains the target location)</source>
-        <translation>(contient l’emplacement cible)</translation>
+        <translation>(contient l&apos;emplacement cible)</translation>
     </message>
     <message>
         <source>Choose another location in %name</source>
@@ -89,6 +89,38 @@
     <message>
         <source>Files</source>
         <translation>Fichiers</translation>
+    </message>
+    <message>
+        <source>or drop them here</source>
+        <translation>ou déposez-les ici</translation>
+    </message>
+    <message>
+        <source>Cancel the upload of %name</source>
+        <translation>Annuler le transfert de %name</translation>
+    </message>
+    <message>
+        <source>Waiting</source>
+        <translation>En attente</translation>
+    </message>
+    <message>
+        <source>Uploading</source>
+        <translation>Transfert en cours</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Terminé</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Échec</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Annulé</translation>
+    </message>
+    <message>
+        <source>Invalid JSON data</source>
+        <translation>Données JSON non valides</translation>
     </message>
 </context>
 </TS>
