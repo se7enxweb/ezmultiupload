@@ -1,5 +1,14 @@
 # ezmultiupload changelog
 
+## 6.1.9 (2026-10-18)
+
+- Added: A complete Ukrainian translation (`translations/ukr-UA`, 215 messages, none unfinished): the upload page,
+  its queue, the location picker and the quick location buttons, the actions on uploaded items, the ZIP import and
+  the server's messages. Its terms follow the kernel's Ukrainian administration translation (Медіа, Зображення,
+  Файли, Розташування, Скасувати ...), so the page reads the same as the rest of the administration; the named quick
+  location buttons (Websites, Media, Users ...) are translated by the kernel's catalogue. It is machine-assisted and
+  would benefit from a review by a native speaker.
+
 ## 6.1.8 (2026-10-18)
 
 - Added: Quick location buttons on the upload page, under the target location: **Websites** and **Media**, then a row
