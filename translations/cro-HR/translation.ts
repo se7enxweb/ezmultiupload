@@ -86,5 +86,29 @@
         <source>Invalid JSON data</source>
         <translation>Nevažeći JSON podaci</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Brze lokacije</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(sadrži ciljnu lokaciju)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Odaberite drugu lokaciju u %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Više...</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Slike</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Datoteke</translation>
+    </message>
 </context>
 </TS>

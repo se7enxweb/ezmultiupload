@@ -98,5 +98,29 @@
         <source>Invalid JSON data</source>
         <translation>Neplatná data JSON</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Rychlá umístění</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(obsahuje cílové umístění)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Vybrat jiné umístění v %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Více...</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Obrázky</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Soubory</translation>
+    </message>
 </context>
 </TS>

@@ -98,5 +98,29 @@
         <source>Invalid JSON data</source>
         <translation>Ogiltiga JSON-data</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Snabbplatser</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(innehåller målplatsen)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Välj en annan plats i %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Mer...</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Bilder</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Filer</translation>
+    </message>
 </context>
 </TS>

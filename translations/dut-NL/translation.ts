@@ -98,5 +98,29 @@
         <source>Invalid JSON data</source>
         <translation>Ongeldige JSON-gegevens</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Snelle locaties</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(bevat de doellocatie)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Kies een andere locatie in %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Meer...</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Afbeeldingen</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Bestanden</translation>
+    </message>
 </context>
 </TS>

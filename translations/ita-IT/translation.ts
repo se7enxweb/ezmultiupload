@@ -86,5 +86,29 @@
         <source>Invalid JSON data</source>
         <translation>Dati JSON non validi</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Posizioni rapide</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(contiene la posizione di destinazione)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Scegli un&apos;altra posizione in %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Altro...</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Immagini</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>File</translation>
+    </message>
 </context>
 </TS>

@@ -98,5 +98,29 @@
         <source>Adobe Flash Player Download Center</source>
         <translation type="obsolete">Adobe Flash Player Download Center</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Hurtige placeringer</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(indeholder målplaceringen)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>Vælg en anden placering i %name</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Mere...</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Billeder</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Filer</translation>
+    </message>
 </context>
 </TS>

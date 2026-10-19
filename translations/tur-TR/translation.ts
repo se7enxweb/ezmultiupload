@@ -86,5 +86,29 @@
         <source>Invalid JSON data</source>
         <translation>Geçersiz JSON verisi</translation>
     </message>
+    <message>
+        <source>Quick locations</source>
+        <translation>Hızlı konumlar</translation>
+    </message>
+    <message>
+        <source>(contains the target location)</source>
+        <translation>(hedef konumu içerir)</translation>
+    </message>
+    <message>
+        <source>Choose another location in %name</source>
+        <translation>%name içinde başka bir konum seçin</translation>
+    </message>
+    <message>
+        <source>More...</source>
+        <translation>Daha fazla...</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Görseller</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Dosyalar</translation>
+    </message>
 </context>
 </TS>
