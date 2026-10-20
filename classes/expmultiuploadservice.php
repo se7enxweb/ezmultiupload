@@ -43,6 +43,18 @@ class expMultiuploadService
     const QUICK_ROWS = array( 'content', 'media' );
     const QUICK_ROW_LIMIT = 12;
 
+    /**
+     * The datatypes whose attributes hold an uploaded file, without ezmultiupload.ini [FileDatatypeSettings]: where
+     * each keeps the original file name and the size (paths into the attribute's content, see contentValue()), which
+     * field of the class attribute holds the "max file size" in MB, and where an image keeps its address for the
+     * preview ('' for none).
+     */
+    const FILE_DATATYPES = array(
+        'ezimage' => array( 'name' => 'original_filename', 'size' => 'original.filesize', 'maxsize' => 'data_int1', 'preview' => 'original.url' ),
+        'ezbinaryfile' => array( 'name' => 'original_filename', 'size' => 'filesize', 'maxsize' => 'data_int1', 'preview' => '' ),
+        'ezmedia' => array( 'name' => 'original_filename', 'size' => 'filesize', 'maxsize' => 'data_int1', 'preview' => '' ),
+    );
+
     // ---- input ------------------------------------------------------------------------------------------------
 
     /**
@@ -578,8 +590,9 @@ class expMultiuploadService
     }
 
     /**
-     * The largest file the class takes in its file attribute (the attribute's "max file size" in MB, data_int1, of
-     * ezimage, ezbinaryfile and ezmedia); 0 for no limit of its own.
+     * The largest file the class takes in its file attribute (the attribute's "max file size" in MB, in the field
+     * fileDatatypes() names for its datatype; data_int1 for ezimage, ezbinaryfile and ezmedia); 0 for no limit of its
+     * own or a datatype that is no file datatype.
      *
      * @param eZContentClass $class
      * @return int bytes
@@ -593,9 +606,73 @@ class expMultiuploadService
         if ( !isset( $dataMap[$attributeName] ) )
             return 0;
         $attribute = $dataMap[$attributeName];
-        if ( !in_array( $attribute->attribute( 'data_type_string' ), array( 'ezimage', 'ezbinaryfile', 'ezmedia' ), true ) )
+        $datatypes = static::fileDatatypes();
+        $type = $attribute->attribute( 'data_type_string' );
+        if ( !isset( $datatypes[$type] ) || $datatypes[$type]['maxsize'] === '' )
             return 0;
-        return 1024 * 1024 * (int)$attribute->attribute( 'data_int1' );
+        return 1024 * 1024 * (int)$attribute->attribute( $datatypes[$type]['maxsize'] );
+    }
+
+    /**
+     * The datatypes whose attributes hold an uploaded file: datatype string => { name, size, maxsize, preview }, from
+     * ezmultiupload.ini [FileDatatypeSettings] FileDatatypes[] with NameAttribute[], SizeAttribute[],
+     * MaxSizeAttribute[] and PreviewAttribute[] per datatype. A key that is not set takes the built-in value of
+     * FILE_DATATYPES for the three kernel datatypes, else '' (not read). Without the setting: FILE_DATATYPES.
+     *
+     * @return array[]
+     */
+    public static function fileDatatypes()
+    {
+        $ini = eZINI::instance( 'ezmultiupload.ini' );
+        $group = 'FileDatatypeSettings';
+        if ( !$ini->hasGroup( $group ) || !$ini->hasVariable( $group, 'FileDatatypes' ) )
+            return self::FILE_DATATYPES;
+        $keys = array( 'name' => 'NameAttribute', 'size' => 'SizeAttribute', 'maxsize' => 'MaxSizeAttribute', 'preview' => 'PreviewAttribute' );
+        $settings = array();
+        foreach ( $keys as $key => $name )
+        {
+            $value = $ini->hasVariable( $group, $name ) ? $ini->variable( $group, $name ) : array();
+            $settings[$key] = is_array( $value ) ? $value : array();
+        }
+        $datatypes = array();
+        foreach ( (array)$ini->variable( $group, 'FileDatatypes' ) as $type )
+        {
+            $type = trim( (string)$type );
+            if ( $type === '' || !preg_match( '/^[A-Za-z0-9_]+$/', $type ) )
+                continue;
+            $entry = array();
+            foreach ( $keys as $key => $name )
+            {
+                $default = isset( self::FILE_DATATYPES[$type] ) ? self::FILE_DATATYPES[$type][$key] : '';
+                $entry[$key] = isset( $settings[$key][$type] ) ? trim( (string)$settings[$key][$type] ) : $default;
+            }
+            $datatypes[$type] = $entry;
+        }
+        return $datatypes;
+    }
+
+    /**
+     * A value of an attribute's content by a path of fileDatatypes(): the first part is an attribute of the content
+     * object, each further part a key of the array it gives ("original.filesize": attribute( 'original' )['filesize']).
+     * null when the content is no object, the path is empty or a part is missing.
+     *
+     * @param mixed $content
+     * @param string $path
+     * @return mixed
+     */
+    protected static function contentValue( $content, $path )
+    {
+        if ( !is_object( $content ) || $path === '' )
+            return null;
+        $parts = explode( '.', $path );
+        $value = $content->attribute( array_shift( $parts ) );
+        foreach ( $parts as $part )
+        {
+            if ( !is_array( $value ) || !isset( $value[$part] ) )
+                return null;
+            $value = $value[$part];
+        }
+        return $value;
     }
 
     /**
@@ -611,8 +688,8 @@ class expMultiuploadService
     }
 
     /**
-     * The files stored below $node: "original file name|size" => the child, for the duplicate check. Images and
-     * files (the classes' file attributes of upload.ini) are read; at most MAX_CHILDREN children.
+     * The files stored below $node: "original file name|size" => the child, for the duplicate check. The attributes
+     * of the file datatypes (fileDatatypes()) are read; at most MAX_CHILDREN children.
      *
      * @param eZContentObjectTreeNode $node
      * @return array[] each { name, size, nodeId, title, url }
@@ -620,6 +697,7 @@ class expMultiuploadService
     protected static function childFiles( $node )
     {
         $files = array();
+        $datatypes = static::fileDatatypes();
         $children = eZContentObjectTreeNode::subTreeByNodeID( array( 'Depth' => 1, 'Limit' => self::MAX_CHILDREN ), $node->attribute( 'node_id' ) ) ?: array();
         foreach ( $children as $child )
         {
@@ -629,22 +707,11 @@ class expMultiuploadService
             foreach ( $object->dataMap() as $attribute )
             {
                 $type = $attribute->attribute( 'data_type_string' );
-                if ( !in_array( $type, array( 'ezimage', 'ezbinaryfile', 'ezmedia' ), true ) || !$attribute->hasContent() )
+                if ( !isset( $datatypes[$type] ) || !$attribute->hasContent() )
                     continue;
                 $content = $attribute->content();
-                $name = '';
-                $size = 0;
-                if ( $type === 'ezimage' )
-                {
-                    $name = (string)$content->attribute( 'original_filename' );
-                    $original = $content->attribute( 'original' );
-                    $size = is_array( $original ) && isset( $original['filesize'] ) ? (int)$original['filesize'] : 0;
-                }
-                else if ( is_object( $content ) )
-                {
-                    $name = (string)$content->attribute( 'original_filename' );
-                    $size = (int)$content->attribute( 'filesize' );
-                }
+                $name = (string)static::contentValue( $content, $datatypes[$type]['name'] );
+                $size = (int)static::contentValue( $content, $datatypes[$type]['size'] );
                 if ( $name !== '' )
                     $files[] = array( 'name' => $name, 'size' => $size, 'nodeId' => (int)$child->attribute( 'node_id' ),
                                       'title' => (string)$child->attribute( 'name' ),
@@ -824,21 +891,24 @@ class expMultiuploadService
     }
 
     /**
-     * The address of the stored image of $object (its first image attribute with an image, the original as the kernel
-     * stored it; an SVG is the sanitized file), for the preview of an uploaded item; '' without one.
+     * The address of the stored image of $object (its first attribute of a file datatype with a preview path in
+     * fileDatatypes() that has one; for ezimage the original as the kernel stored it, an SVG is the sanitized file),
+     * for the preview of an uploaded item; '' without one.
      *
      * @param eZContentObject $object
      * @return string
      */
     protected static function imageUrl( $object )
     {
+        $datatypes = static::fileDatatypes();
         foreach ( $object->dataMap() as $attribute )
         {
-            if ( $attribute->attribute( 'data_type_string' ) !== 'ezimage' || !$attribute->hasContent() )
+            $type = $attribute->attribute( 'data_type_string' );
+            if ( !isset( $datatypes[$type] ) || $datatypes[$type]['preview'] === '' || !$attribute->hasContent() )
                 continue;
-            $original = $attribute->content()->attribute( 'original' );
-            if ( is_array( $original ) && !empty( $original['url'] ) )
-                return eZSys::wwwDir() . '/' . ltrim( (string)$original['url'], '/' );
+            $url = static::contentValue( $attribute->content(), $datatypes[$type]['preview'] );
+            if ( is_scalar( $url ) && !empty( $url ) )
+                return eZSys::wwwDir() . '/' . ltrim( (string)$url, '/' );
         }
         return '';
     }
