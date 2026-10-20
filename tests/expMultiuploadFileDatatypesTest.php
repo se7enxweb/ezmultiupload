@@ -11,6 +11,8 @@
  *  FD-03 - contentValue() follows "attribute.key" paths and gives null for a missing part or a content that is no
  *          object
  *  FD-04 - a datatype that is not listed has no size limit and no preview
+ *  FD-05 - a missing group, an empty list (only the reset entry) and a list of invalid names all fall back to the
+ *          built-in list, and the size limit and preview of ezimage work again
  *
  * Run: php vendor/bin/phpunit extension/ezmultiupload/tests/expMultiuploadFileDatatypesTest.php
  *
@@ -205,5 +207,30 @@ class expMultiuploadFileDatatypesTest extends PHPUnit\Framework\TestCase
         $ini->removeGroup( 'FileDatatypeSettings' );
         $this->assertSame( 2 * 1024 * 1024, expMultiuploadFileDatatypesTestService::maxSize( $class ) );
         $this->assertStringEndsWith( '/var/storage/a.jpg', expMultiuploadFileDatatypesTestService::preview( $class ) );
+    }
+
+    /** FD-05 */
+    public function testAnEmptyListFallsBackToTheBuiltInList()
+    {
+        $ini = self::ini( 'ezmultiupload.ini' );
+        self::ini( 'upload.ini' )->setVariable( 'image_ClassSettings', 'FileAttribute', 'image' );
+        $content = new expMultiuploadFileDatatypesTestValue( array( 'original' => array( 'url' => '/var/storage/a.jpg' ) ) );
+        $image = new expMultiuploadFileDatatypesTestValue( array( 'data_type_string' => 'ezimage', 'data_int1' => 2 ), $content );
+        $class = new expMultiuploadFileDatatypesTestClass( array( 'identifier' => 'image' ), array( 'image' => $image ) );
+
+        $cases = array(
+            'missing group' => null,
+            'empty list' => array(),
+            'invalid names only' => array( '', '  ', 'no space', '../x' ),
+        );
+        foreach ( $cases as $case => $list )
+        {
+            $ini->removeGroup( 'FileDatatypeSettings' );
+            if ( $list !== null )
+                $ini->setVariable( 'FileDatatypeSettings', 'FileDatatypes', $list );
+            $this->assertSame( expMultiuploadService::FILE_DATATYPES, expMultiuploadService::fileDatatypes(), $case );
+            $this->assertSame( 2 * 1024 * 1024, expMultiuploadFileDatatypesTestService::maxSize( $class ), $case );
+            $this->assertStringEndsWith( '/var/storage/a.jpg', expMultiuploadFileDatatypesTestService::preview( $class ), $case );
+        }
     }
 }

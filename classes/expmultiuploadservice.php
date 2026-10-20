@@ -617,7 +617,9 @@ class expMultiuploadService
      * The datatypes whose attributes hold an uploaded file: datatype string => { name, size, maxsize, preview }, from
      * ezmultiupload.ini [FileDatatypeSettings] FileDatatypes[] with NameAttribute[], SizeAttribute[],
      * MaxSizeAttribute[] and PreviewAttribute[] per datatype. A key that is not set takes the built-in value of
-     * FILE_DATATYPES for the three kernel datatypes, else '' (not read). Without the setting: FILE_DATATYPES.
+     * FILE_DATATYPES for the three kernel datatypes, else '' (not read). Without the setting, or with a list that
+     * names no datatype (only the reset entry, or only invalid names): FILE_DATATYPES, so no upload silently loses its
+     * duplicate check, size limit and preview.
      *
      * @return array[]
      */
@@ -648,7 +650,7 @@ class expMultiuploadService
             }
             $datatypes[$type] = $entry;
         }
-        return $datatypes;
+        return $datatypes ? $datatypes : self::FILE_DATATYPES;
     }
 
     /**
