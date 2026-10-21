@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>Unable to load Flash content. You can download the latest version of Flash Player from the</source>
-        <translation>Impossibile caricare il contenuto Flash. Puoi scaricare l'ultima versione di Flash Player dal</translation>
+        <translation>Impossibile caricare il contenuto Flash. Puoi scaricare l&apos;ultima versione di Flash Player dal</translation>
     </message>
     <message>
         <source>Adobe Flash Player Download Center</source>
@@ -140,7 +140,7 @@
     </message>
     <message>
         <source>A file with this name and size is already in this location: %link</source>
-        <translation>In questa collocazione c'è già un file con questo nome e questa dimensione: %link</translation>
+        <translation>In questa collocazione c&apos;è già un file con questo nome e questa dimensione: %link</translation>
     </message>
     <message>
         <source>A title is required.</source>
@@ -480,11 +480,11 @@
     </message>
     <message>
         <source>The item does not exist.</source>
-        <translation>L'elemento non esiste.</translation>
+        <translation>L&apos;elemento non esiste.</translation>
     </message>
     <message>
         <source>The item is in that location already.</source>
-        <translation>L'elemento è già in quella collocazione.</translation>
+        <translation>L&apos;elemento è già in quella collocazione.</translation>
     </message>
     <message>
         <source>The location does not exist.</source>
@@ -580,7 +580,7 @@
     </message>
     <message>
         <source>Use the last location: %location</source>
-        <translation>Usa l'ultima collocazione: %location</translation>
+        <translation>Usa l&apos;ultima collocazione: %location</translation>
     </message>
     <message>
         <source>Use the queue location</source>
@@ -596,7 +596,7 @@
     </message>
     <message>
         <source>You are no longer signed in. Sign in again and repeat this.</source>
-        <translation>Non hai più eseguito l'accesso. Accedi di nuovo e ripeti l'operazione.</translation>
+        <translation>Non hai più eseguito l&apos;accesso. Accedi di nuovo e ripeti l&apos;operazione.</translation>
     </message>
     <message>
         <source>You cannot create content in this location.</source>
@@ -644,7 +644,7 @@
     </message>
     <message>
         <source>%reason Choose another location with Change location.</source>
-        <translation>%reason Scegli un'altra collocazione con Cambia collocazione.</translation>
+        <translation>%reason Scegli un&apos;altra collocazione con Cambia collocazione.</translation>
     </message>
     <message>
         <source>Files cannot be uploaded here: %name is not a container. Choose a folder or another container.</source>
@@ -700,7 +700,7 @@
     </message>
     <message>
         <source>Skipped: the file is not an image by its content.</source>
-        <translation>Saltato: in base al contenuto il file non è un'immagine.</translation>
+        <translation>Saltato: in base al contenuto il file non è un&apos;immagine.</translation>
     </message>
     <message>
         <source>Skipped: the folders are nested too deeply.</source>
@@ -852,7 +852,7 @@
     </message>
     <message>
         <source>Choose another location in %name</source>
-        <translation>Scegli un'altra collocazione in %name</translation>
+        <translation>Scegli un&apos;altra collocazione in %name</translation>
     </message>
     <message>
         <source>More...</source>

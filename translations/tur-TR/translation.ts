@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>Unable to load Flash content. You can download the latest version of Flash Player from the</source>
-        <translation>Flash içeriği yüklenemiyor. Flash Player'ın en son sürümünü şuradan indirebilirsiniz:</translation>
+        <translation>Flash içeriği yüklenemiyor. Flash Player&apos;ın en son sürümünü şuradan indirebilirsiniz:</translation>
     </message>
     <message>
         <source>Adobe Flash Player Download Center</source>
