@@ -628,7 +628,7 @@
     </message>
     <message>
         <source>required</source>
-        <translation>обов'язково</translation>
+        <translation>обов&apos;язково</translation>
     </message>
     <message>
         <source>%count files of the ZIP file are there already (same name and size).</source>
