@@ -110,6 +110,8 @@ class expMultiuploadFileDatatypesTest extends PHPUnit\Framework\TestCase
     {
         if ( !class_exists( 'expMultiuploadService' ) || !method_exists( 'expMultiuploadService', 'fileDatatypes' ) )
             self::markTestSkipped( 'ezmultiupload with [FileDatatypeSettings] is not installed.' );
+        if ( !method_exists( 'eZINI', 'resetInstance' ) )
+            self::markTestSkipped( 'eZINI is the stand-in of expMultiuploadServiceAccessTest in this run; run this file on its own.' );
         $this->cwd = getcwd();
         chdir( dirname( __DIR__, 3 ) );
         eZINI::resetInstance( 'ezmultiupload.ini' );
