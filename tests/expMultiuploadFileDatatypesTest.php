@@ -13,6 +13,8 @@
  *  FD-04 - a datatype that is not listed has no size limit and no preview
  *  FD-05 - a missing group, an empty list (only the reset entry) and a list of invalid names all fall back to the
  *          built-in list, and the size limit and preview of ezimage work again
+ *  FD-06 - a setting that is no path of attribute names and keys is not read; neither is a field the attribute or
+ *          content does not have
  *
  * Run: php vendor/bin/phpunit extension/ezmultiupload/tests/expMultiuploadFileDatatypesTest.php
  *
@@ -232,5 +234,18 @@ class expMultiuploadFileDatatypesTest extends PHPUnit\Framework\TestCase
             $this->assertSame( 2 * 1024 * 1024, expMultiuploadFileDatatypesTestService::maxSize( $class ), $case );
             $this->assertStringEndsWith( '/var/storage/a.jpg', expMultiuploadFileDatatypesTestService::preview( $class ), $case );
         }
+    }
+
+    /** FD-06 */
+    public function testAPathThatIsNoAttributePathIsNotRead()
+    {
+        $ini = self::ini( 'ezmultiupload.ini' );
+        $ini->setVariable( 'FileDatatypeSettings', 'FileDatatypes', array( 'myfile' ) );
+        $ini->setVariable( 'FileDatatypeSettings', 'NameAttribute', array( 'myfile' => 'file name' ) );
+        $ini->setVariable( 'FileDatatypeSettings', 'SizeAttribute', array( 'myfile' => 'meta..bytes' ) );
+        $ini->setVariable( 'FileDatatypeSettings', 'MaxSizeAttribute', array( 'myfile' => 'data_int1()' ) );
+        $ini->setVariable( 'FileDatatypeSettings', 'PreviewAttribute', array( 'myfile' => ' thumb.url ' ) );
+        $this->assertSame( array( 'myfile' => array( 'name' => '', 'size' => '', 'maxsize' => '', 'preview' => 'thumb.url' ) ),
+                           expMultiuploadService::fileDatatypes() );
     }
 }

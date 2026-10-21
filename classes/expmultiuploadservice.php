@@ -608,7 +608,8 @@ class expMultiuploadService
         $attribute = $dataMap[$attributeName];
         $datatypes = static::fileDatatypes();
         $type = $attribute->attribute( 'data_type_string' );
-        if ( !isset( $datatypes[$type] ) || $datatypes[$type]['maxsize'] === '' )
+        if ( !isset( $datatypes[$type] ) || $datatypes[$type]['maxsize'] === ''
+             || ( method_exists( $attribute, 'hasAttribute' ) && !$attribute->hasAttribute( $datatypes[$type]['maxsize'] ) ) )
             return 0;
         return 1024 * 1024 * (int)$attribute->attribute( $datatypes[$type]['maxsize'] );
     }
@@ -647,6 +648,9 @@ class expMultiuploadService
             {
                 $default = isset( self::FILE_DATATYPES[$type] ) ? self::FILE_DATATYPES[$type][$key] : '';
                 $entry[$key] = isset( $settings[$key][$type] ) ? trim( (string)$settings[$key][$type] ) : $default;
+                // a path of attribute names and array keys only; anything else is not read
+                if ( !preg_match( '/^(?:[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*)?$/', $entry[$key] ) )
+                    $entry[$key] = '';
             }
             $datatypes[$type] = $entry;
         }
@@ -667,7 +671,11 @@ class expMultiuploadService
         if ( !is_object( $content ) || $path === '' )
             return null;
         $parts = explode( '.', $path );
-        $value = $content->attribute( array_shift( $parts ) );
+        $first = array_shift( $parts );
+        // an attribute the content does not have is no value (and no "attribute does not exist" error in the debug log)
+        if ( method_exists( $content, 'hasAttribute' ) && !$content->hasAttribute( $first ) )
+            return null;
+        $value = $content->attribute( $first );
         foreach ( $parts as $part )
         {
             if ( !is_array( $value ) || !isset( $value[$part] ) )
