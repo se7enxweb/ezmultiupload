@@ -10,8 +10,9 @@
    BackendCSSFileList). No CSS in this template.
    The quick location buttons (ezmultiupload/quick_locations.tpl) sit under the target; the hidden field
    exp-mu-location-id holds the target node, set by them, the picker and "Use the last location" alike.
+   expmultiupload.js is plain JavaScript on Exp.dialog: the page requests Exponential UI's core without jQuery.
    Needs: $parent_node, $upload_config_json, $max_size_text, $file_types. *}
-{ezscript_require( array( 'exp::core', 'exp::dialog', 'expmultiupload.js' ) )}
+{ezscript_require( array( 'exp::core::shared', 'exp::dialog', 'expmultiupload.js' ) )}
 {ezcss_require( array( 'exp/core.css', 'exp/dialog.css' ) )}
 <div class="exp-mu" id="exp-mu" data-exp-mu>
 <script type="application/json" id="exp-mu-config">{$upload_config_json}</script>
