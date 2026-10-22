@@ -1,9 +1,10 @@
 {ezcss_require( 'ezmultiupload.css' )}
 {* The upload runs on Exponential UI (exp::io, exp::dialog, exp::upload, extension expui), in
-   design/standard/javascript/ezmultiupload_upload.js; its configuration is the JSON of the drop zone's
-   data-ezmultiupload-conf (no inline script). The quick location buttons (ezmultiupload/quick_locations.tpl: drawn by
-   the administration designs, empty elsewhere) change the target without leaving the page. *}
-{ezscript_require( array( 'exp::core', 'exp::io', 'exp::dialog', 'exp::upload', 'ezmultiupload_upload.js' ) )}
+   design/standard/javascript/ezmultiupload_upload.js (plain JavaScript: no jQuery needed); its configuration is the
+   JSON of the drop zone's data-ezmultiupload-conf (no inline script). The quick location buttons
+   (ezmultiupload/quick_locations.tpl: drawn by the administration designs, empty elsewhere) change the target without
+   leaving the page. *}
+{ezscript_require( array( 'exp::core::shared', 'exp::io', 'exp::dialog', 'exp::upload', 'ezmultiupload_upload.js' ) )}
 {ezcss_require( array( 'exp/core.css', 'exp/dialog.css', 'exp/upload.css' ) )}
 
 <div class="border-box">
