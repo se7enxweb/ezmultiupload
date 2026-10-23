@@ -5,7 +5,7 @@
     <name>design/admin/popupmenu</name>
     <message>
         <source>Upload multiple files</source>
-        <translation>Prześlij wiele plików</translation>
+        <translation>Przesłać wiele plików</translation>
     </message>
 </context>
 <context>
@@ -24,7 +24,7 @@
     </message>
     <message>
         <source>Select files</source>
-        <translation>Wybierz pliki</translation>
+        <translation>Wybrać pliki</translation>
     </message>
     <message>
         <source>Unable to load Flash content. You can download the latest version of Flash Player from the</source>
@@ -48,7 +48,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Anuluj</translation>
+        <translation>Anulować</translation>
     </message>
     <message>
         <source>Upload canceled.</source>
@@ -72,7 +72,7 @@
     </message>
     <message>
         <source>Cancel the upload of %name</source>
-        <translation>Anuluj przesyłanie %name</translation>
+        <translation>Anulować przesyłanie %name</translation>
     </message>
     <message>
         <source>Waiting</source>
@@ -152,11 +152,11 @@
     </message>
     <message>
         <source>Add files</source>
-        <translation>Dodaj pliki</translation>
+        <translation>Dodać pliki</translation>
     </message>
     <message>
         <source>Add location...</source>
-        <translation>Dodaj lokalizację...</translation>
+        <translation>Dodać lokalizację...</translation>
     </message>
     <message>
         <source>Alternative text</source>
@@ -180,7 +180,7 @@
     </message>
     <message>
         <source>Ask</source>
-        <translation>Zapytaj</translation>
+        <translation>Zapytać</translation>
     </message>
     <message>
         <source>At most %size per file.</source>
@@ -192,19 +192,19 @@
     </message>
     <message>
         <source>Cancel all</source>
-        <translation>Anuluj wszystko</translation>
+        <translation>Anulować wszystko</translation>
     </message>
     <message>
         <source>Change</source>
-        <translation>Zmień</translation>
+        <translation>Zmienić</translation>
     </message>
     <message>
         <source>Change location...</source>
-        <translation>Zmień lokalizację...</translation>
+        <translation>Zmienić lokalizację...</translation>
     </message>
     <message>
         <source>Change the location of %name</source>
-        <translation>Zmień lokalizację %name</translation>
+        <translation>Zmienić lokalizację %name</translation>
     </message>
     <message>
         <source>Checking</source>
@@ -212,31 +212,31 @@
     </message>
     <message>
         <source>Choose %name</source>
-        <translation>Wybierz %name</translation>
+        <translation>Wybrać %name</translation>
     </message>
     <message>
         <source>Choose a folder...</source>
-        <translation>Wybierz folder...</translation>
+        <translation>Wybrać folder...</translation>
     </message>
     <message>
         <source>Choose a location</source>
-        <translation>Wybierz lokalizację</translation>
+        <translation>Wybrać lokalizację</translation>
     </message>
     <message>
         <source>Choose files...</source>
-        <translation>Wybierz pliki...</translation>
+        <translation>Wybrać pliki...</translation>
     </message>
     <message>
         <source>Choose this location</source>
-        <translation>Wybierz tę lokalizację</translation>
+        <translation>Wybrać tę lokalizację</translation>
     </message>
     <message>
         <source>Clear finished</source>
-        <translation>Wyczyść zakończone</translation>
+        <translation>Wyczyścić zakończone</translation>
     </message>
     <message>
         <source>Dismiss</source>
-        <translation>Odrzuć</translation>
+        <translation>Odrzucić</translation>
     </message>
     <message>
         <source>Draft: not published yet</source>
@@ -248,15 +248,15 @@
     </message>
     <message>
         <source>Edit</source>
-        <translation>Edytuj</translation>
+        <translation>Edytować</translation>
     </message>
     <message>
         <source>Edit %name</source>
-        <translation>Edytuj %name</translation>
+        <translation>Edytować %name</translation>
     </message>
     <message>
         <source>Edit the draft</source>
-        <translation>Edytuj wersję roboczą</translation>
+        <translation>Edytować wersję roboczą</translation>
     </message>
     <message>
         <source>File</source>
@@ -280,7 +280,7 @@
     </message>
     <message>
         <source>Filter by name</source>
-        <translation>Filtruj według nazwy</translation>
+        <translation>Filtrować według nazwy</translation>
     </message>
     <message>
         <source>If %name exists already</source>
@@ -296,7 +296,7 @@
     </message>
     <message>
         <source>Keep as drafts</source>
-        <translation>Zachowaj jako wersje robocze</translation>
+        <translation>Zachować jako wersje robocze</translation>
     </message>
     <message>
         <source>Loading...</source>
@@ -324,7 +324,7 @@
     </message>
     <message>
         <source>Move to...</source>
-        <translation>Przenieś do...</translation>
+        <translation>Przenieść do...</translation>
     </message>
     <message>
         <source>Name</source>
@@ -368,7 +368,7 @@
     </message>
     <message>
         <source>Open %name</source>
-        <translation>Otwórz %name</translation>
+        <translation>Otworzyć %name</translation>
     </message>
     <message>
         <source>Pasted image</source>
@@ -392,35 +392,35 @@
     </message>
     <message>
         <source>Remove %name from the queue</source>
-        <translation>Usuń %name z kolejki</translation>
+        <translation>Usunąć %name z kolejki</translation>
     </message>
     <message>
         <source>Remove from the queue</source>
-        <translation>Usuń z kolejki</translation>
+        <translation>Usunąć z kolejki</translation>
     </message>
     <message>
         <source>Remove...</source>
-        <translation>Usuń...</translation>
+        <translation>Usunąć...</translation>
     </message>
     <message>
         <source>Rename them</source>
-        <translation>Zmień ich nazwy</translation>
+        <translation>Zmienić ich nazwy</translation>
     </message>
     <message>
         <source>Rename to %name</source>
-        <translation>Zmień nazwę na %name</translation>
+        <translation>Zmienić nazwę na %name</translation>
     </message>
     <message>
         <source>Retry</source>
-        <translation>Ponów</translation>
+        <translation>Ponowić</translation>
     </message>
     <message>
         <source>Retry failed</source>
-        <translation>Ponów nieudane</translation>
+        <translation>Ponowić nieudane</translation>
     </message>
     <message>
         <source>Retry the upload of %name</source>
-        <translation>Ponów przesyłanie %name</translation>
+        <translation>Ponowić przesyłanie %name</translation>
     </message>
     <message>
         <source>Saved as draft</source>
@@ -428,11 +428,11 @@
     </message>
     <message>
         <source>Select %name</source>
-        <translation>Zaznacz %name</translation>
+        <translation>Zaznaczyć %name</translation>
     </message>
     <message>
         <source>Select all uploaded items</source>
-        <translation>Zaznacz wszystkie przesłane elementy</translation>
+        <translation>Zaznaczyć wszystkie przesłane elementy</translation>
     </message>
     <message>
         <source>Several files at once: each becomes an item of the content class its type is mapped to.</source>
@@ -440,11 +440,11 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation>Pomiń</translation>
+        <translation>Pominąć</translation>
     </message>
     <message>
         <source>Skip them</source>
-        <translation>Pomiń je</translation>
+        <translation>Pominąć je</translation>
     </message>
     <message>
         <source>Skipped</source>
@@ -556,15 +556,15 @@
     </message>
     <message>
         <source>Upload all</source>
-        <translation>Prześlij wszystko</translation>
+        <translation>Przesłać wszystko</translation>
     </message>
     <message>
         <source>Upload anyway</source>
-        <translation>Prześlij mimo to</translation>
+        <translation>Przesłać mimo to</translation>
     </message>
     <message>
         <source>Upload files</source>
-        <translation>Prześlij pliki</translation>
+        <translation>Przesłać pliki</translation>
     </message>
     <message>
         <source>Uploaded</source>
@@ -580,19 +580,19 @@
     </message>
     <message>
         <source>Use the last location: %location</source>
-        <translation>Użyj ostatniej lokalizacji: %location</translation>
+        <translation>Użyć ostatniej lokalizacji: %location</translation>
     </message>
     <message>
         <source>Use the queue location</source>
-        <translation>Użyj lokalizacji kolejki</translation>
+        <translation>Użyć lokalizacji kolejki</translation>
     </message>
     <message>
         <source>View</source>
-        <translation>Wyświetl</translation>
+        <translation>Wyświetlić</translation>
     </message>
     <message>
         <source>View %name</source>
-        <translation>Wyświetl %name</translation>
+        <translation>Wyświetlić %name</translation>
     </message>
     <message>
         <source>You are no longer signed in. Sign in again and repeat this.</source>
@@ -652,7 +652,7 @@
     </message>
     <message>
         <source>Flatten: every file into the location</source>
-        <translation>Spłaszcz: każdy plik bezpośrednio do lokalizacji</translation>
+        <translation>Spłaszczyć: każdy plik bezpośrednio do lokalizacji</translation>
     </message>
     <message>
         <source>Folders in ZIP files</source>
@@ -660,7 +660,7 @@
     </message>
     <message>
         <source>Keep the folder structure: a folder item for each folder of the ZIP file</source>
-        <translation>Zachowaj strukturę folderów: element folderu dla każdego folderu pliku ZIP</translation>
+        <translation>Zachować strukturę folderów: element folderu dla każdego folderu pliku ZIP</translation>
     </message>
     <message>
         <source>Not selected</source>
@@ -776,11 +776,11 @@
     </message>
     <message>
         <source>Import compressed zip file(s) contents</source>
-        <translation>Importuj zawartość skompresowanych plików ZIP</translation>
+        <translation>Zaimportować zawartość skompresowanych plików ZIP</translation>
     </message>
     <message>
         <source>Import the contents of this ZIP file</source>
-        <translation>Importuj zawartość tego pliku ZIP</translation>
+        <translation>Zaimportować zawartość tego pliku ZIP</translation>
     </message>
     <message>
         <source>Off: a ZIP file is uploaded as one file. On: the files in it are uploaded, also from ZIP files inside it.</source>
@@ -852,7 +852,7 @@
     </message>
     <message>
         <source>Choose another location in %name</source>
-        <translation>Wybierz inną lokalizację w %name</translation>
+        <translation>Wybrać inną lokalizację w %name</translation>
     </message>
     <message>
         <source>More...</source>
