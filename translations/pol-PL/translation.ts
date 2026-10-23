@@ -852,7 +852,7 @@
     </message>
     <message>
         <source>Choose another location in %name</source>
-        <translation>Wybierz inną lokalizację w %name</translation>
+        <translation>Wybrać inną lokalizację w %name</translation>
     </message>
     <message>
         <source>More...</source>
