@@ -44,7 +44,7 @@
     </message>
     <message>
         <source>Allowed Files</source>
-        <translation>Ficheros permitidos</translation>
+        <translation>Archivos permitidos</translation>
     </message>
     <message>
         <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
