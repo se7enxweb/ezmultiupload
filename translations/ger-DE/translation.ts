@@ -5,14 +5,14 @@
     <name>design/admin/popupmenu</name>
     <message>
         <source>Upload multiple files</source>
-        <translation>Multi Upload</translation>
+        <translation>Mehrere Dateien hochladen</translation>
     </message>
 </context>
 <context>
     <name>extension/ezmultiupload</name>
     <message>
         <source>Multiupload</source>
-        <translation>Multi Upload</translation>
+        <translation>Mehrfach-Upload</translation>
     </message>
     <message>
         <source>Error</source>
@@ -56,11 +56,11 @@
     </message>
     <message>
         <source>Allowed Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubte Dateien</translation>
     </message>
     <message>
         <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
-        <translation type="unfinished"></translation>
+        <translation>Flash konnte nicht geladen werden (oder ist noch nicht geladen), es wird für den Mehrfach-Upload benötigt!</translation>
     </message>
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
