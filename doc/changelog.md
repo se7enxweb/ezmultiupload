@@ -1,5 +1,23 @@
 # ezmultiupload changelog
 
+## 6.1.14 (2026-10-26)
+
+- Added: Chinese translations in Simplified (chi-CN) and Traditional (chi-TW) script; chi-HK falls back to chi-TW,
+  from ekked's pull request #18.
+- Added: Translations into seventeen languages from South Asia and Africa: Bengali, Urdu, Marathi, Telugu, Tamil,
+  Gujarati, Kannada, Malayalam, Punjabi, Odia, Hausa, Amharic, Yoruba, Igbo, isiZulu, Somali and isiXhosa, from
+  ekked's pull request #17.
+- Added: Russian, Catalan, Serbian (Cyrillic and Latin), Bulgarian, Lithuanian, Portuguese (Portugal) and Afrikaans
+  translations, from ekked's pull request #16.
+- Added: Translations into eighteen more administration languages: Hindi, Korean, Bosnian, Lower Sorbian, Estonian,
+  Irish, Icelandic, Greenlandic, Latvian, Hungarian, Maltese, Romanian, Albanian, Slovak, Slovenian, Japanese, Greek
+  and Finnish, from ekked's pull request #15.
+- Added: Swahili (Kenya) translation, from ekked's pull request #13.
+- Updated: The multi-upload pages run without jQuery, from ekked's pull request #12.
+- Updated: German names the multiple upload "Mehrere Dateien hochladen" and finishes its last two texts.
+- Fixed: Translations that contradicted their language guide: wrong meanings, glossary breaches, forms of address,
+  typos and English left in the text, from ekked's pull request #14.
+
 ## 6.1.9 (2026-10-18)
 
 - Added: A complete Ukrainian translation (`translations/ukr-UA`, 215 messages, none unfinished): the upload page,
