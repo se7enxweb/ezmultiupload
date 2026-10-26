@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="en_US" sourcelanguage="en">
 <context>
+    <name>design/admin/popupmenu</name>
+    <message>
+        <source>Upload multiple files</source>
+        <translation>Upload multiple files</translation>
+    </message>
+</context>
+<context>
     <name>extension/ezmultiupload</name>
     <message>
         <source>Multiupload</source>
@@ -838,6 +845,14 @@
     <message>
         <source>Files</source>
         <translation>Files</translation>
+    </message>
+    <message>
+        <source>Allowed Files</source>
+        <translation>Allowed Files</translation>
+    </message>
+    <message>
+        <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
+        <translation>Could not load flash(or not loaded yet), this is needed for multiupload!</translation>
     </message>
 </context>
 </TS>
