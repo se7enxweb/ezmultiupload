@@ -12,7 +12,7 @@
     <name>extension/ezmultiupload</name>
     <message>
         <source>Multiupload</source>
-        <translation>Multi-téléchargement</translation>
+        <translation>Chargement multiple</translation>
     </message>
     <message>
         <source>Error</source>
@@ -20,7 +20,7 @@
     </message>
     <message>
         <source>The files are uploaded to</source>
-        <translation>Les fichiers sont téléchargés vers</translation>
+        <translation>Les fichiers sont chargés vers</translation>
     </message>
     <message>
         <source>Select files</source>
@@ -60,11 +60,11 @@
     </message>
     <message>
         <source>Could not load flash(or not loaded yet), this is needed for multiupload!</source>
-        <translation>Impossible de charger Flash (ou pas encore chargé), c&apos;est un pré-requis au téléchargement multiple !</translation>
+        <translation>Impossible de charger Flash (ou pas encore chargé), c&apos;est un pré-requis au chargement multiple !</translation>
     </message>
     <message>
         <source>Javascript has been disabled, this is needed for multiupload!</source>
-        <translation>JavaScript est désactivé, c&apos;est un pré-requis au téléchargement multiple !</translation>
+        <translation>JavaScript est désactivé, c&apos;est un pré-requis au chargement multiple !</translation>
     </message>
     <message>
         <source>Quick locations</source>
